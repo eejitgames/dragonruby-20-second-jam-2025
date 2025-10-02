@@ -137,4 +137,5 @@ def self.reset args
   $game = nil
 end
 
+GTK.disable_framerate_warning!
 GTK.reset
