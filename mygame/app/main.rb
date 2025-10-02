@@ -54,33 +54,51 @@ class Game
     draw_wall_segment_solids(x: 63, y: 17, dir: get_direction)
   end
 
-  # function to draw wall segments, pass in the x, y coordinates, and the direction to draw the segment
+  # function to draw wall segments, pass in the x, y coordinates
+  # and the direction to draw the segment
   def draw_wall_segment_solids(x:, y:, dir:)
     case dir
     when :N
-      outputs.solids   <<  { x: (x - 1) * 16, y: (y - 1) * 16, w: 16, h: @segment_height, r: 10, g: 100, b: 200 }
+      outputs.solids   <<  { x: (x - 1) * 16,
+                             y: (y - 1) * 16,
+                             w: 16,
+                             h: @segment_height,
+                             r: 10, g: 100, b: 200 }
       14.times do |i|
         @room_grid[ y - 1 + i ][ x - 1 ] = 1
       end
     when :S
-      outputs.solids   <<  { x: (x - 1) * 16, y: ((y - 1) * 16) - @segment_height + 16, w: 16, h: @segment_height, r: 10, g: 100, b: 200 }
+      outputs.solids   <<  { x: (x - 1) * 16,
+                             y: ((y - 1) * 16) - @segment_height + 16,
+                             w: 16,
+                             h: @segment_height,
+                             r: 10, g: 100, b: 200 }
       14.times do |i|
         @room_grid[ y + i - 14 ][ x - 1 ] = 1
       end
     when :E
-      outputs.solids   <<  { x: (x - 1) * 16, y: (y - 1) * 16, w: @segment_width, h: 16, r: 10, g: 100, b: 200 }
+      outputs.solids   <<  { x: (x - 1) * 16,
+                             y: (y - 1) * 16,
+                             w: @segment_width,
+                             h: 16,
+                             r: 10, g: 100, b: 200 }
       16.times do |i|
         @room_grid[ y - 1][ x + i - 1] = 1
       end
     when :W
-      outputs.solids   <<  { x: ((x - 1) * 16) - @segment_width + 16, y: (y - 1) * 16, w: @segment_width, h: 16, r: 10, g: 100, b: 200 }
+      outputs.solids   <<  { x: ((x - 1) * 16) - @segment_width + 16,
+                             y: (y - 1) * 16,
+                             w: @segment_width,
+                             h: 16,
+                             r: 10, g: 100, b: 200 }
       16.times do |i|
         @room_grid[ y - 1][ x + i - 16] = 1
       end
     end
   end
 
-  # this is a version of the generation system used in the arcade game berzerk - it follows the same patterns as the arcade game following a reset.
+  # this is a version of the generation system used in the arcade game berzerk
+  # it follows the same patterns as the arcade game following a reset.
   def get_direction
     n1 = 0x7
     n2 = 0x3153
