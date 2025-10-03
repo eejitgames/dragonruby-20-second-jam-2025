@@ -114,7 +114,8 @@ class Game
                              y: (y - 1) * 16,
                              w: 16,
                              h: @segment_height,
-                             r: 10, g: 100, b: 200 }.solid!
+                             path: :solid,
+                             r: 10, g: 100, b: 200 }
       14.times do |i|
         @room_grid[ y - 1 + i ][ x - 1 ] = 1
       end
@@ -123,7 +124,8 @@ class Game
                              y: ((y - 1) * 16) - @segment_height + 16,
                              w: 16,
                              h: @segment_height,
-                             r: 10, g: 100, b: 200 }.solid!
+                             path: :solid,
+                             r: 10, g: 100, b: 200 }
       14.times do |i|
         @room_grid[ y + i - 14 ][ x - 1 ] = 1
       end
@@ -132,7 +134,8 @@ class Game
                              y: (y - 1) * 16,
                              w: @segment_width,
                              h: 16,
-                             r: 10, g: 100, b: 200 }.solid!
+                             path: :solid,
+                             r: 10, g: 100, b: 200 }
       16.times do |i|
         @room_grid[ y - 1][ x + i - 1] = 1
       end
@@ -141,7 +144,8 @@ class Game
                              y: (y - 1) * 16,
                              w: @segment_width,
                              h: 16,
-                             r: 10, g: 100, b: 200 }.solid!
+                             path: :solid,
+                             r: 10, g: 100, b: 200 }
       16.times do |i|
         @room_grid[ y - 1][ x + i - 16] = 1
       end
