@@ -57,8 +57,10 @@ class Game
   def screenshake
     return if @camera_trauma == 0
     next_offset = 200 * @camera_trauma**2
-    @camera_x_offset = next_offset.randomize(:sign, :ratio)
-    @camera_y_offset = next_offset.randomize(:sign, :ratio)
+    t = Kernel.tick_count
+    @camera_x_offset = (Math.sin(t * 0.5) * next_offset).round
+    @camera_y_offset = (Math.cos(t * 0.7) * next_offset).round
+
     @camera_trauma *= 0.95
     if @camera_trauma < 0.05
       @camera_trauma = 0
