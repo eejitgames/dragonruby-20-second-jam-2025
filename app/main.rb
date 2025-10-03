@@ -11,7 +11,7 @@ class Game
   end
 
   def tick
-    outputs.background_color = [ 200, 200, 200 ]
+    outputs.background_color = [0, 0, 0]
     draw_room
   end
 
@@ -20,9 +20,6 @@ class Game
     @room_grid ||= Array.new(@room_rows) { Array.new(@room_cols, 0) }
     draw_outer_wall_solids
     draw_inner_wall_solids
-    # draw_outer_wall_sprites
-    # draw_inner_wall_sprites
-    # draw_wall_junctions_sprites
   end
 
   # draw the outermost walls that do not change
