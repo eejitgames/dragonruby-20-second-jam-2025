@@ -1,6 +1,3 @@
-WIDTH = 1280
-HEIGHT = 720
-
 class Game
   attr_gtk
 
@@ -34,8 +31,8 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-    outputs[:room].w = WIDTH
-    outputs[:room].h = HEIGHT
+    outputs[:room].w = Grid.w
+    outputs[:room].h = Grid.h
     outputs[:room].background_color = [0, 0, 0]
 
     @room_number = Numeric.rand(0 .. 1023) if Kernel.tick_count.zmod? 20
@@ -48,8 +45,8 @@ class Game
     outputs.primitives << {
       x: @camera_x_offset,
       y: @camera_y_offset,
-      w: WIDTH,
-      h: HEIGHT,
+      w: Grid.w,
+      h: Grid.h,
       path: :room,
     }
   end
