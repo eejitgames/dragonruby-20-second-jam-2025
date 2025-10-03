@@ -1,18 +1,68 @@
+WIDTH = 1280
+HEIGHT = 720
+
 class Game
   attr_gtk
 
   def initialize
+    @camera_x_offset = 0
+    @camera_y_offset = 0
+    @camera_trauma = 0
     # @room_number = Numeric.rand(0 .. 1023)
     @room_number = 0x0153
     @room_rows = 45 # 720 / 16
     @room_cols = 80 # 1280 / 16
     @segment_height = 16 * 12 + 2 * 16
     @segment_width = 16 * 14 + 2 * 16
+    @stuff_to_render = []
   end
 
   def tick
+    game_input
+    game_calc
+    game_render
+  end
+
+  def game_input
+    if inputs.mouse.click
+      @camera_trauma = 0.5
+    end
+  end
+
+  def game_calc
+  end
+
+  def game_render
     outputs.background_color = [0, 0, 0]
+    outputs[:room].w = WIDTH
+    outputs[:room].h = HEIGHT
+    outputs[:room].background_color = [0, 0, 0]
+
+    @stuff_to_render.clear
+    screenshake
     draw_room
+    outputs[:room].primitives << @stuff_to_render
+
+    outputs.primitives << {
+      x: @camera_x_offset,
+      y: @camera_y_offset,
+      w: WIDTH,
+      h: HEIGHT,
+      path: :room,
+    }
+  end
+
+  def screenshake
+    return if @camera_trauma == 0
+    next_offset = 200 * @camera_trauma**2
+    @camera_x_offset = next_offset.randomize(:sign, :ratio)
+    @camera_y_offset = next_offset.randomize(:sign, :ratio)
+    @camera_trauma *= 0.95
+    if @camera_trauma < 0.05
+      @camera_trauma = 0
+      @camera_x_offset = 0
+      @camera_y_offset = 0
+    end
   end
 
   # function to draw all the walls for a given room
@@ -56,38 +106,38 @@ class Game
   def draw_wall_segment_solids(x:, y:, dir:)
     case dir
     when :N
-      outputs.solids   <<  { x: (x - 1) * 16,
+      @stuff_to_render <<  { x: (x - 1) * 16,
                              y: (y - 1) * 16,
                              w: 16,
                              h: @segment_height,
-                             r: 10, g: 100, b: 200 }
+                             r: 10, g: 100, b: 200 }.solid!
       14.times do |i|
         @room_grid[ y - 1 + i ][ x - 1 ] = 1
       end
     when :S
-      outputs.solids   <<  { x: (x - 1) * 16,
+      @stuff_to_render <<  { x: (x - 1) * 16,
                              y: ((y - 1) * 16) - @segment_height + 16,
                              w: 16,
                              h: @segment_height,
-                             r: 10, g: 100, b: 200 }
+                             r: 10, g: 100, b: 200 }.solid!
       14.times do |i|
         @room_grid[ y + i - 14 ][ x - 1 ] = 1
       end
     when :E
-      outputs.solids   <<  { x: (x - 1) * 16,
+      @stuff_to_render <<  { x: (x - 1) * 16,
                              y: (y - 1) * 16,
                              w: @segment_width,
                              h: 16,
-                             r: 10, g: 100, b: 200 }
+                             r: 10, g: 100, b: 200 }.solid!
       16.times do |i|
         @room_grid[ y - 1][ x + i - 1] = 1
       end
     when :W
-      outputs.solids   <<  { x: ((x - 1) * 16) - @segment_width + 16,
+      @stuff_to_render <<  { x: ((x - 1) * 16) - @segment_width + 16,
                              y: (y - 1) * 16,
                              w: @segment_width,
                              h: 16,
-                             r: 10, g: 100, b: 200 }
+                             r: 10, g: 100, b: 200 }.solid!
       16.times do |i|
         @room_grid[ y - 1][ x + i - 16] = 1
       end
