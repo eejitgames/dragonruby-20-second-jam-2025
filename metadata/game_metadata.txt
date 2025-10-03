@@ -8,8 +8,8 @@
 
 devid=eejitgames
 devtitle=eejit
-gameid=berzerk-maze
-gametitle=Berzerk Maze
+gameid=20-second-game-jam-2025
+gametitle=20-second-game-jam-2025
 version=0.1
 icon=metadata/icon.png
 
