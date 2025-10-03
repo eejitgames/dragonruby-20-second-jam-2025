@@ -31,16 +31,14 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-    outputs[:room].w = Grid.w
-    outputs[:room].h = Grid.h
-    outputs[:room].background_color = [0, 0, 0]
 
-    @room_number = Numeric.rand(0 .. 1023) if Kernel.tick_count.zmod? 20
+    if Kernel.tick_count.zmod? 20
+      @room_number = Numeric.rand(0 .. 1023)
+      @new_room_needed = true
+    end
 
-    @stuff_to_render.clear
     screenshake
     draw_room
-    outputs[:room].primitives << @stuff_to_render
 
     outputs.primitives << {
       x: @camera_x_offset,
@@ -68,9 +66,17 @@ class Game
 
   # function to draw all the walls for a given room
   def draw_room
+    return unless @new_room_needed
+    outputs[:room].w = Grid.w
+    outputs[:room].h = Grid.h
+    outputs[:room].background_color = [0, 0, 0]
+    # putz "drawing a new room #{Kernel.tick_count}"
+    @stuff_to_render.clear
     @room_grid ||= Array.new(@room_rows) { Array.new(@room_cols, 0) }
     draw_outer_wall_solids
     draw_inner_wall_solids
+    outputs[:room].primitives << @stuff_to_render
+    @new_room_needed = nil
   end
 
   # draw the outermost walls that do not change
