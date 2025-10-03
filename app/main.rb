@@ -38,6 +38,8 @@ class Game
     outputs[:room].h = HEIGHT
     outputs[:room].background_color = [0, 0, 0]
 
+    @room_number = Numeric.rand(0 .. 1023) if Kernel.tick_count.zmod? 20
+
     @stuff_to_render.clear
     screenshake
     draw_room
