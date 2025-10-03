@@ -14,6 +14,7 @@ class Game
     @segment_width = 16 * 14 + 2 * 16
     @new_room_needed = true
     @stuff_to_render = []
+    @waypoints = []
   end
 
   def tick
@@ -25,6 +26,9 @@ class Game
   def game_input
     if inputs.mouse.click
       @camera_trauma = 0.5
+      x = inputs.mouse.click.point.x
+      y = inputs.mouse.click.point.y
+      @waypoints << { x: x, y: y }
     end
   end
 
@@ -33,14 +37,15 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-=begin
+# =begin
     if Kernel.tick_count.zmod? 20
       @room_number = Numeric.rand(0 .. 1023)
       @new_room_needed = true
     end
-=end
+# =end
     screenshake
     draw_room
+    draw_waypoints
 
     outputs.primitives << {
       x: @camera_x_offset,
@@ -49,6 +54,19 @@ class Game
       h: Grid.h,
       path: :room,
     }
+  end
+
+  def draw_waypoints
+    @stuff_to_render << @waypoints.map_with_index do |wp, i|
+      { x: wp[:x], y: wp[:y], text: "#{i + 1}", size_enum: 20,
+        anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }.label!
+    end
+
+    @stuff_to_render << @waypoints.map do |wp|
+      { x: wp[:x], y: wp[:y], w: 10, h: 10,
+        anchor_x: 0.5, anchor_y: 0.5, path: :solid, r: 200, g: 0, b: 0 }
+    end
+    outputs[:room].primitives << @stuff_to_render
   end
 
   def screenshake
@@ -80,7 +98,7 @@ class Game
     @room_grid ||= Array.new(@room_rows) { Array.new(@room_cols, 0) }
     draw_outer_wall_solids
     draw_inner_wall_solids
-    outputs[:room].primitives << @stuff_to_render
+    # outputs[:room].primitives << @stuff_to_render
     @new_room_needed = nil
   end
 
