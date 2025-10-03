@@ -6,11 +6,13 @@ class Game
     @camera_y_offset = 0
     @camera_trauma = 0
     # @room_number = Numeric.rand(0 .. 1023)
-    @room_number = 0x0153
+    # @room_number = 0x0153
+    @room_number = -1 # this is an empty blank room
     @room_rows = 45 # 720 / 16
     @room_cols = 80 # 1280 / 16
     @segment_height = 16 * 12 + 2 * 16
     @segment_width = 16 * 14 + 2 * 16
+    @new_room_needed = true
     @stuff_to_render = []
   end
 
@@ -31,12 +33,12 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-
+=begin
     if Kernel.tick_count.zmod? 20
       @room_number = Numeric.rand(0 .. 1023)
       @new_room_needed = true
     end
-
+=end
     screenshake
     draw_room
 
@@ -70,6 +72,9 @@ class Game
     outputs[:room].w = Grid.w
     outputs[:room].h = Grid.h
     outputs[:room].background_color = [0, 0, 0]
+
+    return if @room_number == -1
+
     # putz "drawing a new room #{Kernel.tick_count}"
     @stuff_to_render.clear
     @room_grid ||= Array.new(@room_rows) { Array.new(@room_cols, 0) }
