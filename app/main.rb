@@ -29,6 +29,7 @@ class Game
       x = inputs.mouse.click.point.x
       y = inputs.mouse.click.point.y
       @waypoints << { x: x, y: y }
+      @redraw_room = true
     end
   end
 
@@ -40,12 +41,12 @@ class Game
 # =begin
     if Kernel.tick_count.zmod? 20
       @room_number = Numeric.rand(0 .. 1023)
-      @new_room_needed = true
+      @redraw_room = true
+      @room_grid = nil
     end
 # =end
     screenshake
-    draw_room
-    draw_waypoints
+    update_room_and_waypoints
 
     outputs.primitives << {
       x: @camera_x_offset,
@@ -56,10 +57,27 @@ class Game
     }
   end
 
-  def draw_waypoints
+  def update_room_and_waypoints
+    return unless @redraw_room
+    outputs[:room].w = 1280
+    outputs[:room].h = 720
+    outputs[:room].background_color = [0, 0, 0]
+
+    # putz "drawing a new room #{Kernel.tick_count}"
+    @stuff_to_render.clear
+    @room_grid ||= Array.new(@room_rows) { Array.new(@room_cols, 0) }
+    unless @room_number == -1
+      # maze related updates
+      update_outer_wall_solids
+      update_inner_wall_solids
+      outputs[:room].primitives << @stuff_to_render
+    end
+    @new_room_needed = nil
+
+    # updates for waypoints
     @stuff_to_render << @waypoints.map_with_index do |wp, i|
       { x: wp[:x], y: wp[:y], text: "#{i + 1}", size_enum: 20,
-        anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }.label!
+        anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }
     end
 
     @stuff_to_render << @waypoints.map do |wp|
@@ -84,26 +102,8 @@ class Game
     end
   end
 
-  # function to draw all the walls for a given room
-  def draw_room
-    return unless @new_room_needed
-    outputs[:room].w = Grid.w
-    outputs[:room].h = Grid.h
-    outputs[:room].background_color = [0, 0, 0]
-
-    return if @room_number == -1
-
-    # putz "drawing a new room #{Kernel.tick_count}"
-    @stuff_to_render.clear
-    @room_grid ||= Array.new(@room_rows) { Array.new(@room_cols, 0) }
-    draw_outer_wall_solids
-    draw_inner_wall_solids
-    # outputs[:room].primitives << @stuff_to_render
-    @new_room_needed = nil
-  end
-
   # draw the outermost walls that do not change
-  def draw_outer_wall_solids
+  def update_outer_wall_solids
     draw_wall_segment_solids(x: 3,  y: 4,  dir: :N)
     draw_wall_segment_solids(x: 3,  y: 30, dir: :N)
     draw_wall_segment_solids(x: 78, y: 4,  dir: :N)
@@ -119,7 +119,7 @@ class Game
   end
 
   # draw inner walls in room, forming a simple maze with wide corridors
-  def draw_inner_wall_solids
+  def update_inner_wall_solids
     @wall_seed = @room_number
     draw_wall_segment_solids(x: 18, y: 30, dir: get_direction)
     draw_wall_segment_solids(x: 33, y: 30, dir: get_direction)
