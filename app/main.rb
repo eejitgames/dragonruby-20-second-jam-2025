@@ -13,6 +13,8 @@ class Game
     @segment_height = 16 * 12 + 2 * 16
     @segment_width = 16 * 14 + 2 * 16
     @new_room_needed = true
+    @creating_tiles = nil
+    @thumbnail_index = 0
     @stuff_to_render = []
     @waypoints = []
   end
@@ -34,12 +36,13 @@ class Game
   end
 
   def game_calc
+    # create_thumbnails_if_needed
   end
 
   def game_render
     outputs.background_color = [0, 0, 0]
 # =begin
-    if Kernel.tick_count.zmod? 20
+    if Kernel.tick_count.zmod? 60
       @room_number = Numeric.rand(0 .. 1023)
       @redraw_room = true
       @room_grid = nil
@@ -55,6 +58,68 @@ class Game
       h: Grid.h,
       path: :room,
     }
+  end
+
+  def create_thumbnails_if_needed
+    # pressing enter will start the thumbnail creation process
+    if inputs.keyboard.key_down.enter && !@creating_tiles
+      @displaying_tiles = false
+      @creating_tiles = true
+      @thumbnail_clock = 0
+    end
+
+    if !GTK.stat_file("sprites/room-1023.png") && !@creating_tiles
+      args.state.displaying_tiles = false
+      args.outputs.labels << {
+        x: 720,
+        y: 360,
+        text: "Press enter to generate map thumbnails",
+        alignment_enum: 1,
+        vertical_alignment_enum: 1,
+        r: 200, g: 200, b: 200
+      }
+    elsif !args.state.creating_tiles
+      @displaying_tiles = true
+    end
+
+    # the thumbnail creation process renders a room
+    # to the screen and takes a screenshot of it every half second
+    # until all the thumbnails are generated.
+    if @creating_tiles
+      # select a room to render
+      @room_number = @thumbnail_index
+      @redraw_room = true
+
+      # determine tile file name
+      thumbnail_path = "sprites/thumbnails/room-#{@room_number}.png"
+
+      putz "Generating #{thumbnail_path}"
+
+      # take a screenshot on frames divisible by 29
+      if @thumbnail_clock.zmod?(29)
+        outputs.screenshots << {
+          x: 0,
+          y: 0,
+          w: Grid.w,
+          h: Grid.h,
+          path: thumbnail_path,
+          a: 255
+        }
+      end
+
+      # increment tile to render on frames divisible by 30 (half a second)
+      # (one frame is allotted to take screenshot)
+      if @thumbnail_clock.zmod?(30)
+        @thumbnail_index +=1
+        # once all of tile tiles are created, begin displaying map
+        if @thumbnail_index > 1023
+          @creating_tiles = false
+          @displaying_tiles = true
+          @room_number = -1
+        end
+      end
+      @thumbnail_clock +=1
+    end
   end
 
   def update_room_and_waypoints
