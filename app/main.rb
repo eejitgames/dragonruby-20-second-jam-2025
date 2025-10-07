@@ -48,8 +48,15 @@ class Game
   def tick_title_scene args
     args.outputs.labels << {
       x: 640,
+      y: 460,
+      text: "A MAZE IN TIME",
+      alignment_enum: 1
+    }
+
+    args.outputs.labels << {
+      x: 640,
       y: 360,
-      text: "A MAZE IN TIME (click to start the game)",
+      text: "(click to start the game)",
       alignment_enum: 1
     }
 
@@ -62,7 +69,10 @@ class Game
     game_input
     game_calc
     game_render
-    # missing logic to transition to game over scene
+    # temporary logic to transition to game over scene
+    if args.inputs.keyboard.key_down.k
+      args.state.next_scene = :game_over_scene
+    end
   end
 
   def tick_game_over_scene args
