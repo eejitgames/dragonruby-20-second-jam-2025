@@ -24,6 +24,30 @@ class Game
     game_render
   end
 
+  def scenes_manager args
+    args.state.current_scene ||= :title_scene
+    current_scene = args.state.current_scene
+
+    case current_scene
+    when :title_scene
+      tick_title_scene args
+    when :game_scene
+      tick_game_scene args
+    when :game_over_scene
+      tick_game_over_scene args
+    end
+
+    if args.state.current_scene != current_scene
+      raise "Scene was changed incorrectly. Set args.state.next_scene to change scenes."
+    end
+
+    if args.state.next_scene
+      args.state.current_scene = args.state.next_scene
+      args.state.next_scene = nil
+    end
+  end
+
+
   def game_input
     if inputs.mouse.click
       @camera_trauma = 0.5
