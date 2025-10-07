@@ -78,8 +78,15 @@ class Game
   def tick_game_over_scene args
     args.outputs.labels << {
       x: 640,
+      y: 460,
+      text: "Game Over",
+      alignment_enum: 1
+    }
+
+    args.outputs.labels << {
+      x: 640,
       y: 360,
-      text: "Game Over (click to go to title)",
+      text: "(click to go to title)",
       alignment_enum: 1
     }
 
