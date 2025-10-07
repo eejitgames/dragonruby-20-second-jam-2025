@@ -12,9 +12,9 @@ class Game
     @room_cols = 80 # 1280 / 16
     @segment_height = 16 * 12 + 2 * 16
     @segment_width = 16 * 14 + 2 * 16
-    @new_room_needed = true
     @creating_tiles = nil
     @thumbnail_index = 0
+    @redraw_room = true
     @stuff_to_render = []
     @waypoints = []
   end
@@ -41,13 +41,13 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-# =begin
+=begin
     if Kernel.tick_count.zmod? 60
-      @room_number = Numeric.rand(0 .. 1023)
+      # @room_number = Numeric.rand(0 .. 1023)
       @redraw_room = true
       @room_grid = nil
     end
-# =end
+=end
     screenshake
     update_room_and_waypoints
 
@@ -78,7 +78,6 @@ class Game
       update_wall_junction_sprites
       outputs[:room].primitives << @stuff_to_render
     end
-    @new_room_needed = nil
 
     # updates for waypoints
     @stuff_to_render << @waypoints.map_with_index do |wp, i|
