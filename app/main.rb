@@ -19,9 +19,7 @@ class Game
   end
 
   def tick
-    game_input
-    game_calc
-    game_render
+    scenes_manager args
   end
 
   def scenes_manager args
@@ -57,6 +55,26 @@ class Game
 
     if args.inputs.mouse.click
       args.state.next_scene = :game_scene
+    end
+  end
+
+  def tick_game_scene args
+    game_input
+    game_calc
+    game_render
+    # missing logic to transition to game over scene
+  end
+
+  def tick_game_over_scene args
+    args.outputs.labels << {
+      x: 640,
+      y: 360,
+      text: "Game Over (click to go to title)",
+      alignment_enum: 1
+    }
+
+    if args.inputs.mouse.click
+      args.state.next_scene = :title_scene
     end
   end
 
