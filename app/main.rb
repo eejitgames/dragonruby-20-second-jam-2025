@@ -47,6 +47,19 @@ class Game
     end
   end
 
+  def tick_title_scene args
+    args.outputs.labels << {
+      x: 640,
+      y: 360,
+      text: "A MAZE IN TIME (click to start the game)",
+      alignment_enum: 1
+    }
+
+    if args.inputs.mouse.click
+      args.state.next_scene = :game_scene
+    end
+  end
+
 
   def game_input
     if inputs.mouse.click
