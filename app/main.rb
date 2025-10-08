@@ -16,85 +16,84 @@ class Game
     @redraw_room = true
     @stuff_to_render = []
     @waypoints = []
+    @current_scene = :title_scene
   end
 
   def tick
-    scenes_manager args
+    scene_manager
   end
 
-  def scenes_manager args
-    args.state.current_scene ||= :title_scene
-    current_scene = args.state.current_scene
+  def scene_manager
+    current_scene = @current_scene
 
     case current_scene
     when :title_scene
-      tick_title_scene args
+      tick_title_scene
     when :game_scene
-      tick_game_scene args
+      tick_game_scene
     when :game_over_scene
-      tick_game_over_scene args
+      tick_game_over_scene
     end
 
-    if args.state.current_scene != current_scene
-      raise "Scene was changed incorrectly. Set args.state.next_scene to change scenes."
+    if @current_scene != current_scene
+      raise "Scene was changed incorrectly. Set @next_scene to change scenes."
     end
 
-    if args.state.next_scene
-      args.state.current_scene = args.state.next_scene
-      args.state.next_scene = nil
+    if @next_scene
+      @current_scene = @next_scene
+      @next_scene = nil
     end
   end
 
-  def tick_title_scene args
-    args.outputs.labels << {
+  def tick_title_scene
+    outputs.labels << {
       x: 640,
       y: 460,
       text: "A MAZE IN TIME",
       alignment_enum: 1
     }
 
-    args.outputs.labels << {
+    outputs.labels << {
       x: 640,
       y: 360,
       text: "(click to start the game)",
       alignment_enum: 1
     }
 
-    if args.inputs.mouse.click
-      args.state.next_scene = :game_scene
+    if inputs.mouse.click
+      @next_scene = :game_scene
     end
   end
 
-  def tick_game_scene args
+  def tick_game_scene
     game_input
     game_calc
     game_render
     # temporary logic to transition to game over scene
-    if args.inputs.keyboard.key_down.k
-      args.state.next_scene = :game_over_scene
+    if inputs.keyboard.key_down.k
+      @next_scene = :game_over_scene
     end
   end
 
-  def tick_game_over_scene args
-    args.outputs.labels << {
+  def tick_game_over_scene
+    outputs.labels << {
       x: 640,
       y: 460,
       text: "Game Over",
       alignment_enum: 1
     }
 
-    args.outputs.labels << {
+    outputs.labels << {
       x: 640,
       y: 360,
       text: "(click to go to title)",
       alignment_enum: 1
     }
 
-    if args.inputs.mouse.click
-      args.state.next_scene = :title_scene
+    if inputs.mouse.click
+      GTK.reset_next_tick
     end
   end
-
 
   def game_input
     if inputs.mouse.click
