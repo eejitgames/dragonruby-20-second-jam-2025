@@ -12,7 +12,6 @@ class Game
     @room_cols = 80 # 1280 / 16
     @segment_height = 16 * 12 + 2 * 16
     @segment_width = 16 * 14 + 2 * 16
-    @creating_tiles = nil
     @thumbnail_index = 0
     @redraw_room = true
     @stuff_to_render = []
@@ -43,7 +42,7 @@ class Game
     outputs.background_color = [0, 0, 0]
 =begin
     if Kernel.tick_count.zmod? 60
-      # @room_number = Numeric.rand(0 .. 1023)
+      @room_number = Numeric.rand(0 .. 1023)
       @redraw_room = true
       @room_grid = nil
     end
@@ -131,6 +130,16 @@ class Game
     @stuff_to_render << { x: 76 * 16, y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 29)}.png" }
     @stuff_to_render << { x: 31 * 16, y:  2 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y:  3)}.png" }
     @stuff_to_render << { x: 46 * 16, y:  2 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y:  3)}.png" }
+
+    # possible spawn points
+    # @stuff_to_render << { x: 8.5 * 16, y: 8.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
+    # @stuff_to_render << { x: 8.5 * 16, y: 21.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
+    # @stuff_to_render << { x: 8.5 * 16, y: 34.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
+
+    # possible exit points
+    # @stuff_to_render << { x: 68.5 * 16, y: 8.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
+    # @stuff_to_render << { x: 68.5 * 16, y: 21.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
+    # @stuff_to_render << { x: 68.5 * 16, y: 34.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
   end
 
   # draw inner walls in room, forming a simple maze with wide corridors
@@ -340,8 +349,8 @@ class Game
     end
 
     if !GTK.stat_file("sprites/room-1023.png") && !@creating_tiles
-      args.state.displaying_tiles = false
-      args.outputs.labels << {
+      @displaying_tiles = false
+      outputs.labels << {
         x: 720,
         y: 360,
         text: "Press enter to generate map thumbnails",
@@ -349,7 +358,7 @@ class Game
         vertical_alignment_enum: 1,
         r: 200, g: 200, b: 200
       }
-    elsif !args.state.creating_tiles
+    elsif !@creating_tiles
       @displaying_tiles = true
     end
 
