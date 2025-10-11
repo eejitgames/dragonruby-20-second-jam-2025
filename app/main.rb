@@ -3,8 +3,8 @@ WIDTH = 1280
 HEIGHT = 720
 
 # Game screen dimensions, 320x180, 480x270, or maximum 640x360
-GAME_WIDTH = 480 #320 #480 640
-GAME_HEIGHT = 270 #180 #270 360
+GAME_WIDTH = 320 #320 #480 640
+GAME_HEIGHT = 180 #180 #270 360
 
 # Determine best fit zoom level
 ZOOM_WIDTH = (WIDTH.to_f / GAME_WIDTH) #.floor
