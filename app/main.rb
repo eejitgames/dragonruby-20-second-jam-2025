@@ -2,13 +2,13 @@
 WIDTH = 1280
 HEIGHT = 720
 
-# Game screen dimensions
-GAME_WIDTH = 320
-GAME_HEIGHT = 180
+# Game screen dimensions, 320x180, 480x270, or maximum 640x360
+GAME_WIDTH = 480 #320 #480 640
+GAME_HEIGHT = 270 #180 #270 360
 
 # Determine best fit zoom level
-ZOOM_WIDTH = (WIDTH / GAME_WIDTH).floor
-ZOOM_HEIGHT = (HEIGHT / GAME_HEIGHT).floor
+ZOOM_WIDTH = (WIDTH.to_f / GAME_WIDTH) #.floor
+ZOOM_HEIGHT = (HEIGHT.to_f / GAME_HEIGHT) #.floor
 ZOOM = [ZOOM_WIDTH, ZOOM_HEIGHT].min
 
 # Compute the offset to center the game screen
@@ -19,8 +19,10 @@ OFFSET_Y = (HEIGHT - GAME_HEIGHT * ZOOM) / 2
 ZOOMED_WIDTH = GAME_WIDTH * ZOOM
 ZOOMED_HEIGHT = GAME_HEIGHT * ZOOM
 
-SF = 4  # SCALING_FACTOR: 4 for 320x180, 16 for 1280x720
-WS = 12 # WALL_SIZE: 12 for 320x180, 48 for 1280x720
+# adjustments for the game resolution
+
+SF = 16 / (WIDTH / GAME_WIDTH)
+WS = 48 / (WIDTH / GAME_WIDTH)
 
 class Game
   attr_gtk
@@ -35,6 +37,7 @@ class Game
     @room_rows = 45 # 720 / 16
     @room_cols = 80 # 1280 / 16
     @segment_height = SF * 12 + 2 * SF
+    @segment_height = SF * 12 + 2 * SF
     @segment_width = SF * 14 + 2 * SF
     @thumbnail_index = 0
     @redraw_room = true
@@ -45,18 +48,18 @@ class Game
     @current_scene = :title_scene
     # @spawn_point = { x: 8.5 * 16, y: [ 8.5, 21.5, 34.5 ].sample * 16 }
     # @exit_point = { x: 68.5 * 16, y: [ 8.5, 21.5, 34.5 ].sample * 16 }
-    @spawn_point = { x: 8.5 * 4, y: 23 * 4 }
-    @exit_point = { x: 69 * 16, y: 23.5 * 16 }
+    @spawn_point = { x: 8.5 * SF, y: 23 * SF }
+    @exit_point = { x: 69 * 16, y: 24 * 16 }
     @player = {
       x: @spawn_point.x,
       y: @spawn_point.y,
-      w: 12,
-      h: 12,
+      w: WS,
+      h: WS,
       path: :solid,
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 0, g: 200, b: 0,
-      speed: 0.8
+      speed: 0.2 * SF
     }
   end
 
@@ -138,11 +141,15 @@ class Game
 
   def game_input
     if inputs.mouse.click
-      # @camera_trauma = 0.5
+      @camera_trauma = 0.5
       # x = inputs.mouse.click.point.x
       # y = inputs.mouse.click.point.y
-      x = (inputs.mouse.x - OFFSET_X).idiv(ZOOM)
-      y = (inputs.mouse.y - OFFSET_Y).idiv(ZOOM)
+      # x = (inputs.mouse.x - OFFSET_X).idiv(ZOOM)
+      # y = (inputs.mouse.y - OFFSET_Y).idiv(ZOOM)
+      x = (inputs.mouse.x - OFFSET_X).to_f / ZOOM
+      y = (inputs.mouse.y - OFFSET_Y).to_f / ZOOM
+      puts x
+      puts y
       @waypoints << { x: x, y: y }
       @redraw_room = true
     end
@@ -155,13 +162,13 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-=begin
+# =begin
     if Kernel.tick_count.zmod? 60
       @room_number = Numeric.rand(0 .. 1023)
       @redraw_room = true
       @room_grid = nil
     end
-=end
+# =end
     screenshake
     update_room_and_waypoints
     update_exit
@@ -170,10 +177,10 @@ class Game
 
     # render the game scaled to fit the screen
     outputs.primitives << {
-      x: @camera_x_offset,
-      y: @camera_y_offset,
-      w: WIDTH,
-      h: HEIGHT,
+      x: OFFSET_X + @camera_x_offset,
+      y: OFFSET_Y + @camera_y_offset,
+      w: ZOOMED_WIDTH, # ??
+      h: ZOOMED_HEIGHT, # ??
       path: :room,
     }
 
@@ -229,8 +236,9 @@ class Game
 
     @hud_stuff_to_render.clear
     @hud_stuff_to_render << @waypoints.map_with_index do |wp, i|
-      { x: wp[:x] * SF, y: wp[:y] * SF, text: "#{i + 1}", size_enum: 20,
-        anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }
+      {
+        x: OFFSET_X + wp[:x] * ZOOM, y: OFFSET_Y + wp[:y] * ZOOM, text: "#{i + 1}",
+        size_enum: 10, anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }
     end
 
     outputs[:hud].primitives << @hud_stuff_to_render
