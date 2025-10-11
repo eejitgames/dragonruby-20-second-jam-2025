@@ -118,9 +118,11 @@ class Game
 
   def game_input
     if inputs.mouse.click
-      @camera_trauma = 0.5
-      x = inputs.mouse.click.point.x
-      y = inputs.mouse.click.point.y
+      # @camera_trauma = 0.5
+      # x = inputs.mouse.click.point.x
+      # y = inputs.mouse.click.point.y
+      x = (inputs.mouse.x - OFFSET_X).idiv(ZOOM)
+      y = (inputs.mouse.y - OFFSET_Y).idiv(ZOOM)
       @waypoints << { x: x, y: y }
       @redraw_room = true
     end
@@ -139,22 +141,23 @@ class Game
       @room_grid = nil
     end
 =end
-    #screenshake
+    screenshake
     update_room_and_waypoints
 
+    # render the game scaled to fit the screen
     outputs.primitives << {
       x: @camera_x_offset,
       y: @camera_y_offset,
-      w: Grid.w,
-      h: Grid.h,
+      w: WIDTH,
+      h: HEIGHT,
       path: :room,
     }
   end
 
   def update_room_and_waypoints
     return unless @redraw_room
-    outputs[:room].w = 1280
-    outputs[:room].h = 720
+    outputs[:room].w = GAME_WIDTH
+    outputs[:room].h = GAME_HEIGHT
     outputs[:room].background_color = [0, 0, 0]
 
     # putz "drawing a new room #{Kernel.tick_count}"
