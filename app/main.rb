@@ -118,7 +118,7 @@ class Game
       @room_grid = nil
     end
 =end
-    screenshake
+    #screenshake
     update_room_and_waypoints
 
     outputs.primitives << {
