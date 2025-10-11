@@ -40,6 +40,21 @@ class Game
     @hud_stuff_to_render = []
     @waypoints = []
     @current_scene = :title_scene
+    # @spawn_point = { x: 8.5 * 16, y: [ 8.5, 21.5, 34.5 ].sample * 16 }
+    # @exit_point = { x: 68.5 * 16, y: [ 8.5, 21.5, 34.5 ].sample * 16 }
+    @spawn_point = { x: 8.5 * 4, y: 23 * 4 }
+    @exit_point = { x: 69 * 16, y: 23.5 * 16 }
+    @player = {
+      x: @spawn_point.x,
+      y: @spawn_point.y,
+      w: 12,
+      h: 12,
+      path: :solid,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      r: 0, g: 200, b: 0,
+      speed: 0.5
+    }
   end
 
   def tick
@@ -145,6 +160,8 @@ class Game
 =end
     screenshake
     update_room_and_waypoints
+    update_exit
+    update_player
     update_hud
 
     # render the game scaled to fit the screen
@@ -164,6 +181,20 @@ class Game
       h: HEIGHT,
       path: :hud,
     }
+  end
+
+  def update_player
+    outputs[:room].primitives << @player
+  end
+
+  def update_exit
+    outputs[:hud].primitives << {
+      x: @exit_point[:x], y: @exit_point[:y],
+      text: "EXIT", size_enum: 5, r: 0, g: 200, b: 0 }
+
+    outputs[:hud].primitives << {
+      x: @exit_point[:x], y: @exit_point[:y],
+      w: 59, h: 27, anchor_y: 1, r: 200, g: 0, b: 0 }.border!
   end
 
   def update_hud
