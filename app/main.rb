@@ -226,7 +226,6 @@ class Game
     outputs[:hud].w = WIDTH
     outputs[:hud].h = HEIGHT
     outputs[:hud].background_color = [0, 0, 0, 0]
-    # outputs[:hud].clear_before_render = true
 
     @hud_stuff_to_render.clear
     @hud_stuff_to_render << @waypoints.map_with_index do |wp, i|
