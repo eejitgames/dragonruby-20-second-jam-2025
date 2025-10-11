@@ -53,7 +53,7 @@ class Game
       anchor_x: 0.5,
       anchor_y: 0.5,
       r: 0, g: 200, b: 0,
-      speed: 0.5
+      speed: 0.8
     }
   end
 
@@ -147,6 +147,7 @@ class Game
 
   def game_calc
     # create_thumbnails_if_needed
+    move_player
   end
 
   def game_render
@@ -181,6 +182,25 @@ class Game
       h: HEIGHT,
       path: :hud,
     }
+  end
+
+  def move_player
+    return if @waypoints.empty?
+
+    wp = @waypoints.first
+    dx = wp[:x] - @player.x
+    dy = wp[:y] - @player.y
+    dist = Math.sqrt(dx * dx + dy * dy)
+
+    # we've reached a waypoint
+    if dist < @player.speed
+      @player.x, @player.y = wp[:x], wp[:y]
+      @waypoints.shift
+    else
+      # move towards the waypoint
+      @player.x += (dx / dist) * @player.speed
+      @player.y += (dy / dist) * @player.speed
+    end
   end
 
   def update_player
