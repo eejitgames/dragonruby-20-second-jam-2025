@@ -1,3 +1,24 @@
+# Logical canvas width and height
+WIDTH = 1280
+HEIGHT = 720
+
+# Game screen dimensions
+GAME_WIDTH = 320
+GAME_HEIGHT = 180
+
+# Determine best fit zoom level
+ZOOM_WIDTH = (WIDTH / GAME_WIDTH).floor
+ZOOM_HEIGHT = (HEIGHT / GAME_HEIGHT).floor
+ZOOM = [ZOOM_WIDTH, ZOOM_HEIGHT].min
+
+# Compute the offset to center the game screen
+OFFSET_X = (WIDTH - GAME_WIDTH * ZOOM) / 2
+OFFSET_Y = (HEIGHT - GAME_HEIGHT * ZOOM) / 2
+
+# Compute the scaled dimensions of the game screen
+ZOOMED_WIDTH = GAME_WIDTH * ZOOM
+ZOOMED_HEIGHT = GAME_HEIGHT * ZOOM
+
 class Game
   attr_gtk
 
