@@ -3,8 +3,8 @@ WIDTH = 1280
 HEIGHT = 720
 
 # Game screen dimensions, 320x180, 480x270, or maximum 640x360
-GAME_WIDTH = 320 #320 #480 640
-GAME_HEIGHT = 180 #180 #270 360
+GAME_WIDTH = 640 #320 #480 640
+GAME_HEIGHT = 360 #180 #270 360
 
 # Determine best fit zoom level
 ZOOM_WIDTH = (WIDTH.to_f / GAME_WIDTH) #.floor
@@ -141,15 +141,9 @@ class Game
 
   def game_input
     if inputs.mouse.click
-      @camera_trauma = 0.5
-      # x = inputs.mouse.click.point.x
-      # y = inputs.mouse.click.point.y
-      # x = (inputs.mouse.x - OFFSET_X).idiv(ZOOM)
-      # y = (inputs.mouse.y - OFFSET_Y).idiv(ZOOM)
+      #@camera_trauma = 0.5
       x = (inputs.mouse.x - OFFSET_X).to_f / ZOOM
       y = (inputs.mouse.y - OFFSET_Y).to_f / ZOOM
-      puts x
-      puts y
       @waypoints << { x: x, y: y }
       @redraw_room = true
     end
@@ -179,8 +173,8 @@ class Game
     outputs.primitives << {
       x: OFFSET_X + @camera_x_offset,
       y: OFFSET_Y + @camera_y_offset,
-      w: ZOOMED_WIDTH, # ??
-      h: ZOOMED_HEIGHT, # ??
+      w: ZOOMED_WIDTH,
+      h: ZOOMED_HEIGHT,
       path: :room,
     }
 
