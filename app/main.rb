@@ -19,6 +19,9 @@ OFFSET_Y = (HEIGHT - GAME_HEIGHT * ZOOM) / 2
 ZOOMED_WIDTH = GAME_WIDTH * ZOOM
 ZOOMED_HEIGHT = GAME_HEIGHT * ZOOM
 
+SF = 4  # SCALING_FACTOR: 4 for 320x180, 16 for 1280x720
+WS = 12 # WALL_SIZE: 12 for 320x180, WS for 1280x720
+
 class Game
   attr_gtk
 
@@ -27,12 +30,12 @@ class Game
     @camera_y_offset = 0
     @camera_trauma = 0
     # @room_number = Numeric.rand(0 .. 1023)
-    # @room_number = 0x0153
-    @room_number = -1 # this is an empty blank room
+    @room_number = 0x0153
+    # @room_number = -1 # this is an empty blank room
     @room_rows = 45 # 720 / 16
     @room_cols = 80 # 1280 / 16
-    @segment_height = 16 * 12 + 2 * 16
-    @segment_width = 16 * 14 + 2 * 16
+    @segment_height = SF * 12 + 2 * SF
+    @segment_width = SF * 14 + 2 * SF
     @thumbnail_index = 0
     @redraw_room = true
     @redraw_hud = true
@@ -152,13 +155,13 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-=begin
+# =begin
     if Kernel.tick_count.zmod? 60
       @room_number = Numeric.rand(0 .. 1023)
       @redraw_room = true
       @room_grid = nil
     end
-=end
+# =end
     screenshake
     update_room_and_waypoints
     update_exit
@@ -227,7 +230,7 @@ class Game
 
     @hud_stuff_to_render.clear
     @hud_stuff_to_render << @waypoints.map_with_index do |wp, i|
-      { x: wp[:x] * 4, y: wp[:y] * 4, text: "#{i + 1}", size_enum: 20,
+      { x: wp[:x] * SF, y: wp[:y] * SF, text: "#{i + 1}", size_enum: 20,
         anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }
     end
 
@@ -255,7 +258,7 @@ class Game
 
     # updates for waypoints
     @stuff_to_render << @waypoints.map do |wp|
-      { x: wp[:x], y: wp[:y], w: 4, h: 4,
+      { x: wp[:x], y: wp[:y], w: SF, h: SF,
         anchor_x: 0.5, anchor_y: 0.5, path: :solid, r: 200, g: 0, b: 0 }
     end
     outputs[:room].primitives << @stuff_to_render
@@ -277,39 +280,29 @@ class Game
   end
 
   def update_wall_junction_sprites
-    @stuff_to_render << { x: 31 * 16, y: 41 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 42)}.png" }
-    @stuff_to_render << { x: 46 * 16, y: 41 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 42)}.png" }
-    @stuff_to_render << { x: 1 * 16 , y: 15 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x:  2, y: 16)}.png" }
-    @stuff_to_render << { x: 1 * 16 , y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x:  2, y: 29)}.png" }
+    @stuff_to_render << { x: 31 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 42)}.png" }
+    @stuff_to_render << { x: 46 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 42)}.png" }
+    @stuff_to_render << { x:  1 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x:  2, y: 16)}.png" }
+    @stuff_to_render << { x:  1 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x:  2, y: 29)}.png" }
 
-    @stuff_to_render << { x: 16 * 16, y:  2 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 17, y:  3)}.png" }
-    @stuff_to_render << { x: 16 * 16, y: 41 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 17, y: 42)}.png" }
-    @stuff_to_render << { x: 61 * 16, y:  2 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 62, y:  3)}.png" }
-    @stuff_to_render << { x: 61 * 16, y: 41 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 62, y: 42)}.png" }
+    @stuff_to_render << { x: 16 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 17, y:  3)}.png" }
+    @stuff_to_render << { x: 16 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 17, y: 42)}.png" }
+    @stuff_to_render << { x: 61 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 62, y:  3)}.png" }
+    @stuff_to_render << { x: 61 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 62, y: 42)}.png" }
 
-    @stuff_to_render << { x: 31 * 16, y: 15 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 16)}.png" }
-    @stuff_to_render << { x: 46 * 16, y: 15 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 16)}.png" }
-    @stuff_to_render << { x: 61 * 16, y: 15 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 62, y: 16)}.png" }
-    @stuff_to_render << { x: 16 * 16, y: 15 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 17, y: 16)}.png" }
-    @stuff_to_render << { x: 31 * 16, y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 29)}.png" }
-    @stuff_to_render << { x: 46 * 16, y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 29)}.png" }
-    @stuff_to_render << { x: 61 * 16, y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 62, y: 29)}.png" }
-    @stuff_to_render << { x: 16 * 16, y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 17, y: 29)}.png" }
+    @stuff_to_render << { x: 31 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 16)}.png" }
+    @stuff_to_render << { x: 46 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 16)}.png" }
+    @stuff_to_render << { x: 61 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 62, y: 16)}.png" }
+    @stuff_to_render << { x: 16 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 17, y: 16)}.png" }
+    @stuff_to_render << { x: 31 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 29)}.png" }
+    @stuff_to_render << { x: 46 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 29)}.png" }
+    @stuff_to_render << { x: 61 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 62, y: 29)}.png" }
+    @stuff_to_render << { x: 16 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 17, y: 29)}.png" }
 
-    @stuff_to_render << { x: 76 * 16, y: 15 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 16)}.png" }
-    @stuff_to_render << { x: 76 * 16, y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 29)}.png" }
-    @stuff_to_render << { x: 31 * 16, y:  2 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y:  3)}.png" }
-    @stuff_to_render << { x: 46 * 16, y:  2 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y:  3)}.png" }
-
-    # possible spawn points
-    # @stuff_to_render << { x: 8.5 * 16, y: 8.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
-    # @stuff_to_render << { x: 8.5 * 16, y: 21.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
-    # @stuff_to_render << { x: 8.5 * 16, y: 34.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
-
-    # possible exit points
-    # @stuff_to_render << { x: 68.5 * 16, y: 8.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
-    # @stuff_to_render << { x: 68.5 * 16, y: 21.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
-    # @stuff_to_render << { x: 68.5 * 16, y: 34.5 * 16, w: 48, h: 48, path: "sprites/walls/wall_1.png" }
+    @stuff_to_render << { x: 76 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 16)}.png" }
+    @stuff_to_render << { x: 76 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 29)}.png" }
+    @stuff_to_render << { x: 31 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y:  3)}.png" }
+    @stuff_to_render << { x: 46 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y:  3)}.png" }
   end
 
   # draw inner walls in room, forming a simple maze with wide corridors
@@ -369,59 +362,59 @@ class Game
     draw_wall_segment_sprites(x: 63, y: 4,  dir: :E)
     draw_wall_segment_sprites(x: 63, y: 43, dir: :E)
 
-    @stuff_to_render <<  { x: 1 * 16,  y: 2 * 16, w: 48, h: 48, path: "sprites/walls/wall_5.png" }
-    @stuff_to_render <<  { x: 1 * 16,  y: 42 * 16 - 16, w: 48, h: 48, path: "sprites/walls/wall_12.png" }
-    @stuff_to_render <<  { x: 76 * 16, y: 42 * 16 - 16, w: 48, h: 48, path: "sprites/walls/wall_10.png" }
-    @stuff_to_render <<  { x: 76 * 16, y: 2 * 16, w: 48, h: 48, path: "sprites/walls/wall_3.png" }
+    @stuff_to_render << { x:  1 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_5.png" }
+    @stuff_to_render << { x:  1 * SF, y: 42 * SF - SF, w: WS, h: WS, path: "sprites/walls/wall_12.png" }
+    @stuff_to_render << { x: 76 * SF, y: 42 * SF - SF, w: WS, h: WS, path: "sprites/walls/wall_10.png" }
+    @stuff_to_render << { x: 76 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_3.png" }
 
-    @stuff_to_render << { x: 31 * 16,  y: 2 * 16,  w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 3)}.png" }
-    @stuff_to_render << { x: 31 * 16,  y: 41 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 42)}.png" }
-    @stuff_to_render << { x: 46 * 16,  y: 2 * 16,  w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 3)}.png" }
-    @stuff_to_render << { x: 46 * 16,  y: 41 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 42)}.png" }
+    @stuff_to_render << { x: 31 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 3)}.png" }
+    @stuff_to_render << { x: 31 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y: 42)}.png" }
+    @stuff_to_render << { x: 46 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 3)}.png" }
+    @stuff_to_render << { x: 46 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y: 42)}.png" }
 
-    @stuff_to_render << { x: 16 * 16,  y: 2 * 16,  w: 48, h: 48, path: "sprites/walls/wall_6.png" }
-    @stuff_to_render << { x: 16 * 16,  y: 41 * 16, w: 48, h: 48, path: "sprites/walls/wall_6.png" }
-    @stuff_to_render << { x: 61 * 16,  y: 2 * 16,  w: 48, h: 48, path: "sprites/walls/wall_6.png" }
-    @stuff_to_render << { x: 61 * 16,  y: 41 * 16, w: 48, h: 48, path: "sprites/walls/wall_6.png" }
+    @stuff_to_render << { x: 16 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_6.png" }
+    @stuff_to_render << { x: 16 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_6.png" }
+    @stuff_to_render << { x: 61 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_6.png" }
+    @stuff_to_render << { x: 61 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_6.png" }
 
-    @stuff_to_render << { x: 1 * 16,   y: 15 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 2, y: 16)}.png" }
-    @stuff_to_render << { x: 1 * 16,   y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 2, y: 29)}.png" }
-    @stuff_to_render << { x: 76 * 16,  y: 15 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 16)}.png" }
-    @stuff_to_render << { x: 76 * 16,  y: 28 * 16, w: 48, h: 48, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 29)}.png" }
+    @stuff_to_render << { x:  1 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 2, y: 16)}.png" }
+    @stuff_to_render << { x:  1 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 2, y: 29)}.png" }
+    @stuff_to_render << { x: 76 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 16)}.png" }
+    @stuff_to_render << { x: 76 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 29)}.png" }
   end
 
   def draw_wall_segment_sprites(x:, y:, dir:)
     case dir
     when :N
       4.times do |i|
-        @stuff_to_render <<  { x: (x - 2) * 16,
-                               y: y * 16 + (i * 48),
-                               w: 48,
-                               h: 48,
+        @stuff_to_render <<  { x: (x - 2) * SF,
+                               y: y * SF + (i * WS),
+                               w: WS,
+                               h: WS,
                                path: "sprites/walls/wall_9.png" }
       end
     when :S
       4.times do |i|
-        @stuff_to_render <<  { x: (x - 2) * 16,
-                               y: y * 16 + (i * 48) - @segment_height + 16,
-                               w: 48,
-                               h: 48,
+        @stuff_to_render <<  { x: (x - 2) * SF,
+                               y: y * SF + (i * WS) - @segment_height + SF,
+                               w: WS,
+                               h: WS,
                                path: "sprites/walls/wall_9.png" }
       end
     when :E
       4.times do |i|
-        @stuff_to_render <<  { x: (x + 1) * 16 + (i * 48),
-                               y: (y - 2) * 16,
-                               w: 48,
-                               h: 48,
+        @stuff_to_render <<  { x: (x + 1) * SF + (i * WS),
+                               y: (y - 2) * SF,
+                               w: WS,
+                               h: WS,
                                path: "sprites/walls/wall_6.png" }
       end
     when :W
       4.times do |i|
-        @stuff_to_render <<  { x: (x + 1) * 16 + (i * 48) - @segment_width + 16,
-                               y: (y - 2) * 16,
-                               w: 48,
-                               h: 48,
+        @stuff_to_render <<  { x: (x + 1) * SF + (i * WS) - @segment_width + SF,
+                               y: (y - 2) * SF,
+                               w: WS,
+                               h: WS,
                                path: "sprites/walls/wall_6.png" }
       end
     end
@@ -443,9 +436,9 @@ class Game
   def draw_wall_segment_solids(x:, y:, dir:)
     case dir
     when :N
-      @stuff_to_render <<  { x: (x - 1) * 16,
-                             y: (y - 1) * 16,
-                             w: 16,
+      @stuff_to_render <<  { x: (x - 1) * SF,
+                             y: (y - 1) * SF,
+                             w: SF,
                              h: @segment_height,
                              path: :solid,
                              r: 10, g: 100, b: 200 }
@@ -453,9 +446,9 @@ class Game
         @room_grid[ y - 1 + i ][ x - 1 ] = 1
       end
     when :S
-      @stuff_to_render <<  { x: (x - 1) * 16,
-                             y: ((y - 1) * 16) - @segment_height + 16,
-                             w: 16,
+      @stuff_to_render <<  { x: (x - 1) * SF,
+                             y: ((y - 1) * SF) - @segment_height + SF,
+                             w: SF,
                              h: @segment_height,
                              path: :solid,
                              r: 10, g: 100, b: 200 }
@@ -463,20 +456,20 @@ class Game
         @room_grid[ y + i - 14 ][ x - 1 ] = 1
       end
     when :E
-      @stuff_to_render <<  { x: (x - 1) * 16,
-                             y: (y - 1) * 16,
+      @stuff_to_render <<  { x: (x - 1) * SF,
+                             y: (y - 1) * SF,
                              w: @segment_width,
-                             h: 16,
+                             h: SF,
                              path: :solid,
                              r: 10, g: 100, b: 200 }
       16.times do |i|
         @room_grid[ y - 1][ x + i - 1] = 1
       end
     when :W
-      @stuff_to_render <<  { x: ((x - 1) * 16) - @segment_width + 16,
-                             y: (y - 1) * 16,
+      @stuff_to_render <<  { x: ((x - 1) * SF) - @segment_width + SF,
+                             y: (y - 1) * SF,
                              w: @segment_width,
-                             h: 16,
+                             h: SF,
                              path: :solid,
                              r: 10, g: 100, b: 200 }
       16.times do |i|
