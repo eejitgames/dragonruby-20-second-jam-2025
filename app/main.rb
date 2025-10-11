@@ -35,7 +35,9 @@ class Game
     @segment_width = 16 * 14 + 2 * 16
     @thumbnail_index = 0
     @redraw_room = true
+    @redraw_hud = true
     @stuff_to_render = []
+    @hud_stuff_to_render = []
     @waypoints = []
     @current_scene = :title_scene
   end
@@ -143,6 +145,7 @@ class Game
 =end
     screenshake
     update_room_and_waypoints
+    update_hud
 
     # render the game scaled to fit the screen
     outputs.primitives << {
@@ -152,6 +155,32 @@ class Game
       h: HEIGHT,
       path: :room,
     }
+
+    # render the game scaled to fit the screen
+    outputs.primitives << {
+      x: @camera_x_offset,
+      y: @camera_y_offset,
+      w: WIDTH,
+      h: HEIGHT,
+      path: :hud,
+    }
+  end
+
+  def update_hud
+    return unless @redraw_hud
+    # define a render target that represents the game screen
+    outputs[:hud].w = WIDTH
+    outputs[:hud].h = HEIGHT
+    outputs[:hud].background_color = [0, 0, 0, 0]
+    # outputs[:hud].clear_before_render = true
+
+    @hud_stuff_to_render.clear
+    @hud_stuff_to_render << @waypoints.map_with_index do |wp, i|
+      { x: wp[:x] * 4, y: wp[:y] * 4, text: "#{i + 1}", size_enum: 20,
+        anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }
+    end
+
+    outputs[:hud].primitives << @hud_stuff_to_render
   end
 
   def update_room_and_waypoints
@@ -174,13 +203,8 @@ class Game
     end
 
     # updates for waypoints
-    @stuff_to_render << @waypoints.map_with_index do |wp, i|
-      { x: wp[:x], y: wp[:y], text: "#{i + 1}", size_enum: 20,
-        anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }
-    end
-
     @stuff_to_render << @waypoints.map do |wp|
-      { x: wp[:x], y: wp[:y], w: 10, h: 10,
+      { x: wp[:x], y: wp[:y], w: 4, h: 4,
         anchor_x: 0.5, anchor_y: 0.5, path: :solid, r: 200, g: 0, b: 0 }
     end
     outputs[:room].primitives << @stuff_to_render
