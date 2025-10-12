@@ -3,12 +3,12 @@ WIDTH = 1280
 HEIGHT = 720
 
 # Game screen dimensions, 320x180, 480x270, or maximum 640x360
-GAME_WIDTH = 640 #320 #480 640
-GAME_HEIGHT = 360 #180 #270 360
+GAME_WIDTH = 320
+GAME_HEIGHT = 180
 
 # Determine best fit zoom level
-ZOOM_WIDTH = (WIDTH.to_f / GAME_WIDTH) #.floor
-ZOOM_HEIGHT = (HEIGHT.to_f / GAME_HEIGHT) #.floor
+ZOOM_WIDTH = (WIDTH / GAME_WIDTH).floor
+ZOOM_HEIGHT = (HEIGHT / GAME_HEIGHT).floor
 ZOOM = [ZOOM_WIDTH, ZOOM_HEIGHT].min
 
 # Compute the offset to center the game screen
@@ -20,9 +20,8 @@ ZOOMED_WIDTH = GAME_WIDTH * ZOOM
 ZOOMED_HEIGHT = GAME_HEIGHT * ZOOM
 
 # adjustments for the game resolution
-
-SF = 16 / (WIDTH / GAME_WIDTH)
-WS = 48 / (WIDTH / GAME_WIDTH)
+SF = 16 / ZOOM # scale factor
+WS = 48 / ZOOM # wall size
 
 class Game
   attr_gtk
@@ -32,8 +31,8 @@ class Game
     @camera_y_offset = 0
     @camera_trauma = 0
     # @room_number = Numeric.rand(0 .. 1023)
-    # @room_number = 0x0153
-    @room_number = -1 # this is an empty blank room
+    @room_number = 0x0153
+    # @room_number = -1 # this is an empty blank room
     @room_rows = 45 # 720 / 16
     @room_cols = 80 # 1280 / 16
     @segment_height = SF * 12 + 2 * SF
@@ -156,13 +155,13 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-# =begin
+=begin
     if Kernel.tick_count.zmod? 60
       @room_number = Numeric.rand(0 .. 1023)
       @redraw_room = true
       @room_grid = nil
     end
-# =end
+=end
     screenshake
     update_room_and_waypoints
     update_exit
