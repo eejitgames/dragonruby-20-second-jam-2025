@@ -64,6 +64,7 @@ class Game
       frame_dir: 1,
       frame: 0
     }
+    @wall_rects = []
   end
 
   def tick
@@ -150,6 +151,7 @@ class Game
 
       # need some more validation here
       # don't allow waypoints that can't be reached
+      # or bump them into the nearest valid space
       mx = 0 if mx < 0
       mx = 320 if mx > 320
       my = 0 if my < 0
@@ -226,20 +228,21 @@ class Game
       return
     end
 
+    p = @player
     wp = @waypoints.first
     dx = wp[:x] - @player.x
     dy = wp[:y] - @player.y
     dist = Math.sqrt(dx * dx + dy * dy)
 
     # we've reached a waypoint
-    if dist < @player.speed
-      @player.x, @player.y = wp[:x], wp[:y]
+    if dist < p.speed
+      p.x, p.y = wp[:x], wp[:y]
       @waypoints.shift
 
       unless @waypoints.empty?
         # we've reached a waypoint, set the character angle
-        px = @player.x
-        py = @player.y
+        px = p.x
+        py = p.y
         tx = @waypoints.first.x # target x
         ty = @waypoints.first.y # target y
 
@@ -248,7 +251,6 @@ class Game
         dy = ty - py
 
         # determine the 'best' of the 4 available angles
-        # angle = Math.atan2(dy, dx) * 180 / Math::PI
         angle = (Math.atan2(dy, dx) * 180 / Math::PI) % 360
 
         # shortest signed angular difference helper (returns value in -180..180)
@@ -256,14 +258,33 @@ class Game
 
         # snap to nearest of the four cardinal directions using shortest angular distance
         facing = [0, 90, 180, 270].min_by { |a| shortest_diff.call(angle, a).abs }
-        @player.angle_facing = facing
+        p.angle_facing = facing
       end
     else
-      # move towards the waypoint
-      @player.x += (dx / dist) * @player.speed
-      @player.y += (dy / dist) * @player.speed
+      # check x and y separately, to see if they intersect with a wall rect
+      move_x = (dx / dist) * p.speed
+      move_y = (dy / dist) * p.speed
+
+      player_rect_x_dir = { x: p.x + move_x, y: p.y, w: 24, h: 24, anchor_x: 0.5, anchor_y: 0.5 }
+      player_rect_y_dir = { x: p.x, y: p.y + move_y, w: 24, h: 24, anchor_x: 0.5, anchor_y: 0.5 }
+
+      #outputs[:room].primitives << player_rect_x_dir.merge(path: :solid, r: 200, g: 200, b: 200).border!
+      #outputs[:room].primitives << player_rect_y_dir.merge(path: :solid, r: 200, g: 200, b: 200).border!
+      #putz @wall_rects.length
+      #putz "hit x" if geometry.find_intersect_rect player_rect_x_dir, @wall_rects
+      #putz "hit y" if geometry.find_intersect_rect player_rect_y_dir, @wall_rects
+      #putz "player rect x: #{player_rect_x_dir}"
+      #putz "player rect y: #{player_rect_y_dir}"
+
+      move_x = 0 if geometry.find_intersect_rect player_rect_x_dir, @wall_rects
+      move_y = 0 if geometry.find_intersect_rect player_rect_y_dir, @wall_rects
+
+      # move towards the waypoint, also prevent player from going too far forward/back in the scene
+      p.x += move_x #.cap_min_max(0, 320)
+      p.y += move_y #.cap_min_max(0, 180)
     end
     update_player_animation_frame
+    @wall_rects = []
   end
 
   def update_player_animation_frame
@@ -290,6 +311,10 @@ class Game
     y = @player.y.round
     player = @player.merge(x: x, y: y, path: "sprites/wizard_#{m}_#{a}_#{f}.png")
     outputs[:room].primitives << player
+
+    # debug border for player
+    #player = @player.merge(x: x, y: y, path: :solid, r: 200, g: 200, b: 200).border!
+    #outputs[:room].primitives << player
   end
 
   def update_exit
@@ -325,7 +350,6 @@ class Game
     outputs[:room].h = GAME_HEIGHT
     outputs[:room].background_color = [0, 0, 0]
 
-    # putz "drawing a new room #{Kernel.tick_count}"
     @stuff_to_render.clear
     @room_grid ||= Array.new(@room_rows) { Array.new(@room_cols, 0) }
     unless @room_number == -1
@@ -335,6 +359,12 @@ class Game
       update_outer_wall_sprites
       update_inner_wall_sprites
       update_wall_junction_sprites
+
+      #debug show wall rects
+      #@stuff_to_render << @wall_rects.map do |wr|
+      #  wr.merge(path: :solid, r: 200, g: 200, b: 200).border!
+      #end
+
       outputs[:room].primitives << @stuff_to_render
     end
 
@@ -385,6 +415,31 @@ class Game
     @stuff_to_render << { x: 76 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 29)}.png" }
     @stuff_to_render << { x: 31 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 32, y:  3)}.png" }
     @stuff_to_render << { x: 46 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 47, y:  3)}.png" }
+
+    # wall rects
+    @wall_rects << { x: 31 * SF, y: 41 * SF, w: WS, h: WS }
+    @wall_rects << { x: 46 * SF, y: 41 * SF, w: WS, h: WS }
+    @wall_rects << { x:  1 * SF, y: 15 * SF, w: WS, h: WS }
+    @wall_rects << { x:  1 * SF, y: 28 * SF, w: WS, h: WS }
+
+    @wall_rects << { x: 16 * SF, y:  2 * SF, w: WS, h: WS }
+    @wall_rects << { x: 16 * SF, y: 41 * SF, w: WS, h: WS }
+    @wall_rects << { x: 61 * SF, y:  2 * SF, w: WS, h: WS }
+    @wall_rects << { x: 61 * SF, y: 41 * SF, w: WS, h: WS }
+
+    @wall_rects << { x: 31 * SF, y: 15 * SF, w: WS, h: WS }
+    @wall_rects << { x: 46 * SF, y: 15 * SF, w: WS, h: WS }
+    @wall_rects << { x: 61 * SF, y: 15 * SF, w: WS, h: WS }
+    @wall_rects << { x: 16 * SF, y: 15 * SF, w: WS, h: WS }
+    @wall_rects << { x: 31 * SF, y: 28 * SF, w: WS, h: WS }
+    @wall_rects << { x: 46 * SF, y: 28 * SF, w: WS, h: WS }
+    @wall_rects << { x: 61 * SF, y: 28 * SF, w: WS, h: WS }
+    @wall_rects << { x: 16 * SF, y: 28 * SF, w: WS, h: WS }
+
+    @wall_rects << { x: 76 * SF, y: 15 * SF, w: WS, h: WS }
+    @wall_rects << { x: 76 * SF, y: 28 * SF, w: WS, h: WS }
+    @wall_rects << { x: 31 * SF, y:  2 * SF, w: WS, h: WS }
+    @wall_rects << { x: 46 * SF, y:  2 * SF, w: WS, h: WS }
   end
 
   # draw inner walls in room, forming a simple maze with wide corridors
@@ -463,6 +518,27 @@ class Game
     @stuff_to_render << { x:  1 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 2, y: 29)}.png" }
     @stuff_to_render << { x: 76 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 16)}.png" }
     @stuff_to_render << { x: 76 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{choose_junction_sprite(x: 77, y: 29)}.png" }
+
+    # wall rects
+    @wall_rects << { x:  1 * SF, y:  2 * SF, w: WS, h: WS }
+    @wall_rects << { x:  1 * SF, y: 42 * SF - SF, w: WS, h: WS }
+    @wall_rects << { x: 76 * SF, y: 42 * SF - SF, w: WS, h: WS }
+    @wall_rects << { x: 76 * SF, y:  2 * SF, w: WS, h: WS }
+
+    @wall_rects << { x: 31 * SF, y:  2 * SF, w: WS, h: WS }
+    @wall_rects << { x: 31 * SF, y: 41 * SF, w: WS, h: WS }
+    @wall_rects << { x: 46 * SF, y:  2 * SF, w: WS, h: WS }
+    @wall_rects << { x: 46 * SF, y: 41 * SF, w: WS, h: WS }
+
+    @wall_rects << { x: 16 * SF, y:  2 * SF, w: WS, h: WS }
+    @wall_rects << { x: 16 * SF, y: 41 * SF, w: WS, h: WS }
+    @wall_rects << { x: 61 * SF, y:  2 * SF, w: WS, h: WS }
+    @wall_rects << { x: 61 * SF, y: 41 * SF, w: WS, h: WS }
+
+    @wall_rects << { x:  1 * SF, y: 15 * SF, w: WS, h: WS }
+    @wall_rects << { x:  1 * SF, y: 28 * SF, w: WS, h: WS }
+    @wall_rects << { x: 76 * SF, y: 15 * SF, w: WS, h: WS }
+    @wall_rects << { x: 76 * SF, y: 28 * SF, w: WS, h: WS }
   end
 
   def draw_wall_segment_sprites(x:, y:, dir:)
@@ -474,6 +550,10 @@ class Game
                                w: WS,
                                h: WS,
                                path: "sprites/walls/wall_9.png" }
+        @wall_rects      <<  { x: (x - 2) * SF,
+                               y: y * SF + (i * WS),
+                               w: WS,
+                               h: WS }
       end
     when :S
       4.times do |i|
@@ -482,6 +562,10 @@ class Game
                                w: WS,
                                h: WS,
                                path: "sprites/walls/wall_9.png" }
+        @wall_rects      <<  { x: (x - 2) * SF,
+                               y: y * SF + (i * WS) - @segment_height + SF,
+                               w: WS,
+                               h: WS }
       end
     when :E
       4.times do |i|
@@ -490,6 +574,10 @@ class Game
                                w: WS,
                                h: WS,
                                path: "sprites/walls/wall_6.png" }
+        @wall_rects      <<  { x: (x + 1) * SF + (i * WS),
+                               y: (y - 2) * SF,
+                               w: WS,
+                               h: WS }
       end
     when :W
       4.times do |i|
@@ -498,6 +586,10 @@ class Game
                                w: WS,
                                h: WS,
                                path: "sprites/walls/wall_6.png" }
+        @wall_rects      <<  { x: (x + 1) * SF + (i * WS) - @segment_width + SF,
+                               y: (y - 2) * SF,
+                               w: WS,
+                               h: WS }
       end
     end
   end
