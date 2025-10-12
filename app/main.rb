@@ -52,13 +52,17 @@ class Game
     @player = {
       x: @spawn_point.x,
       y: @spawn_point.y,
-      w: WS,
-      h: WS,
+      w: 24,
+      h: 24,
       path: :solid,
       anchor_x: 0.5,
       anchor_y: 0.5,
-      r: 0, g: 200, b: 0,
-      speed: 0.2 * SF
+      speed: 0.2 * SF,
+      mode: :walk,
+      angle_facing: 270,
+      frame_time: Kernel.tick_count,
+      frame_dir: 1,
+      frame: 0
     }
   end
 
@@ -141,10 +145,39 @@ class Game
   def game_input
     if inputs.mouse.click
       #@camera_trauma = 0.5
-      x = (inputs.mouse.x - OFFSET_X).to_f / ZOOM
-      y = (inputs.mouse.y - OFFSET_Y).to_f / ZOOM
-      @waypoints << { x: x, y: y }
+      mx = (inputs.mouse.x - OFFSET_X).idiv(ZOOM)
+      my = (inputs.mouse.y - OFFSET_Y).idiv(ZOOM)
+
+      # need some more validation here
+      # don't allow waypoints that can't be reached
+      mx = 0 if mx < 0
+      mx = 320 if mx > 320
+      my = 0 if my < 0
+      my = 180 if my > 180
+
+      @waypoints << { x: mx, y: my }
       @redraw_room = true
+
+      # a new waypoint has been placed, set the character angle
+      px = @player.x
+      py = @player.y
+      tx = @waypoints.first.x # target x
+      ty = @waypoints.first.y # target y
+
+      # delta from current to first waypoint
+      dx = tx - px
+      dy = ty - py
+
+      # determine the 'best' of the 4 available angles
+      # angle = Math.atan2(dy, dx) * 180 / Math::PI
+      angle = (Math.atan2(dy, dx) * 180 / Math::PI) % 360
+
+      # shortest signed angular difference helper (returns value in -180..180)
+      shortest_diff = ->(a, b) { ((a - b + 180.0) % 360.0) - 180.0 }
+
+      # snap to nearest of the four cardinal directions using shortest angular distance
+      facing = [0, 90, 180, 270].min_by { |a| shortest_diff.call(angle, a).abs }
+      @player.angle_facing = facing
     end
   end
 
@@ -188,7 +221,10 @@ class Game
   end
 
   def move_player
-    return if @waypoints.empty?
+    if @waypoints.empty?
+      @player.frame_time = Kernel.tick_count
+      return
+    end
 
     wp = @waypoints.first
     dx = wp[:x] - @player.x
@@ -199,15 +235,61 @@ class Game
     if dist < @player.speed
       @player.x, @player.y = wp[:x], wp[:y]
       @waypoints.shift
+
+      unless @waypoints.empty?
+        # we've reached a waypoint, set the character angle
+        px = @player.x
+        py = @player.y
+        tx = @waypoints.first.x # target x
+        ty = @waypoints.first.y # target y
+
+        # delta from current to first waypoint
+        dx = tx - px
+        dy = ty - py
+
+        # determine the 'best' of the 4 available angles
+        # angle = Math.atan2(dy, dx) * 180 / Math::PI
+        angle = (Math.atan2(dy, dx) * 180 / Math::PI) % 360
+
+        # shortest signed angular difference helper (returns value in -180..180)
+        shortest_diff = ->(a, b) { ((a - b + 180.0) % 360.0) - 180.0 }
+
+        # snap to nearest of the four cardinal directions using shortest angular distance
+        facing = [0, 90, 180, 270].min_by { |a| shortest_diff.call(angle, a).abs }
+        @player.angle_facing = facing
+      end
     else
       # move towards the waypoint
       @player.x += (dx / dist) * @player.speed
       @player.y += (dy / dist) * @player.speed
     end
+    update_player_animation_frame
+  end
+
+  def update_player_animation_frame
+    old_frame_time = @player.frame_time
+    if Kernel.tick_count - old_frame_time > 5
+      @player.frame_time = Kernel.tick_count
+      @player.frame += @player.frame_dir
+
+      if @player.frame > 2
+        @player.frame = 2
+        @player.frame_dir = -1
+      elsif @player.frame < 0
+        @player.frame = 0
+        @player.frame_dir = 1
+      end
+    end
   end
 
   def update_player
-    outputs[:room].primitives << @player
+    m = @player.mode
+    a = @player.angle_facing
+    f = @player.frame
+    x = @player.x.round
+    y = @player.y.round
+    player = @player.merge(x: x, y: y, path: "sprites/wizard_#{m}_#{a}_#{f}.png")
+    outputs[:room].primitives << player
   end
 
   def update_exit
@@ -231,7 +313,7 @@ class Game
     @hud_stuff_to_render << @waypoints.map_with_index do |wp, i|
       {
         x: OFFSET_X + wp[:x] * ZOOM, y: OFFSET_Y + wp[:y] * ZOOM, text: "#{i + 1}",
-        size_enum: 10, anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 }
+        size_enum: 10, anchor_x: 0.5, anchor_y: 0.5, r: 200, g: 200, b: 200 }
     end
 
     outputs[:hud].primitives << @hud_stuff_to_render
