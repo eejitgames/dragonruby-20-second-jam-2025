@@ -159,27 +159,7 @@ class Game
 
       @waypoints << { x: mx, y: my }
       @redraw_room = true
-
-      # a new waypoint has been placed, set the character angle
-      px = @player.x
-      py = @player.y
-      tx = @waypoints.first.x # target x
-      ty = @waypoints.first.y # target y
-
-      # delta from current to first waypoint
-      dx = tx - px
-      dy = ty - py
-
-      # determine the 'best' of the 4 available angles
-      # angle = Math.atan2(dy, dx) * 180 / Math::PI
-      angle = (Math.atan2(dy, dx) * 180 / Math::PI) % 360
-
-      # shortest signed angular difference helper (returns value in -180..180)
-      shortest_diff = ->(a, b) { ((a - b + 180.0) % 360.0) - 180.0 }
-
-      # snap to nearest of the four cardinal directions using shortest angular distance
-      facing = [0, 90, 180, 270].min_by { |a| shortest_diff.call(angle, a).abs }
-      @player.angle_facing = facing
+      udpate_player_facing
     end
   end
 
@@ -238,29 +218,10 @@ class Game
     if dist < p.speed
       p.x, p.y = wp[:x], wp[:y]
       @waypoints.shift
-
-      unless @waypoints.empty?
-        # we've reached a waypoint, set the character angle
-        px = p.x
-        py = p.y
-        tx = @waypoints.first.x # target x
-        ty = @waypoints.first.y # target y
-
-        # delta from current to first waypoint
-        dx = tx - px
-        dy = ty - py
-
-        # determine the 'best' of the 4 available angles
-        angle = (Math.atan2(dy, dx) * 180 / Math::PI) % 360
-
-        # shortest signed angular difference helper (returns value in -180..180)
-        shortest_diff = ->(a, b) { ((a - b + 180.0) % 360.0) - 180.0 }
-
-        # snap to nearest of the four cardinal directions using shortest angular distance
-        facing = [0, 90, 180, 270].min_by { |a| shortest_diff.call(angle, a).abs }
-        p.angle_facing = facing
-      end
+      udpate_player_facing
     else
+      udpate_player_facing if Kernel.tick_count.zmod? 60
+
       # check x and y separately, to see if they intersect with a wall rect
       move_x = (dx / dist) * p.speed
       move_y = (dy / dist) * p.speed
@@ -270,21 +231,39 @@ class Game
 
       #outputs[:room].primitives << player_rect_x_dir.merge(path: :solid, r: 200, g: 200, b: 200).border!
       #outputs[:room].primitives << player_rect_y_dir.merge(path: :solid, r: 200, g: 200, b: 200).border!
-      #putz @wall_rects.length
-      #putz "hit x" if geometry.find_intersect_rect player_rect_x_dir, @wall_rects
-      #putz "hit y" if geometry.find_intersect_rect player_rect_y_dir, @wall_rects
-      #putz "player rect x: #{player_rect_x_dir}"
-      #putz "player rect y: #{player_rect_y_dir}"
 
       move_x = 0 if geometry.find_intersect_rect player_rect_x_dir, @wall_rects
       move_y = 0 if geometry.find_intersect_rect player_rect_y_dir, @wall_rects
 
-      # move towards the waypoint, also prevent player from going too far forward/back in the scene
+      # move towards the waypoint, prevent player from going outside the screen
       p.x += move_x #.cap_min_max(0, 320)
       p.y += move_y #.cap_min_max(0, 180)
     end
     update_player_animation_frame
     @wall_rects = []
+  end
+
+  def udpate_player_facing
+      return if @waypoints.empty?
+      px = @player.x
+      py = @player.y
+      tx = @waypoints.first.x # target x
+      ty = @waypoints.first.y # target y
+
+      # delta from current to first waypoint
+      dx = tx - px
+      dy = ty - py
+
+      # determine the 'best' of the 4 available angles
+      # angle = Math.atan2(dy, dx) * 180 / Math::PI
+      angle = (Math.atan2(dy, dx) * 180 / Math::PI) % 360
+
+      # shortest signed angular difference helper (returns value in -180..180)
+      shortest_diff = ->(a, b) { ((a - b + 180.0) % 360.0) - 180.0 }
+
+      # snap to nearest of the four cardinal directions using shortest angular distance
+      facing = [0, 90, 180, 270].min_by { |a| shortest_diff.call(angle, a).abs }
+      @player.angle_facing = facing
   end
 
   def update_player_animation_frame
