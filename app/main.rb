@@ -153,9 +153,9 @@ class Game
       # don't allow waypoints that can't be reached
       # or bump them into the nearest valid space
       mx = 0 if mx < 0
-      mx = 320 if mx > 320
+      mx = 320 if mx > GAME_WIDTH
       my = 0 if my < 0
-      my = 180 if my > 180
+      my = 180 if my > GAME_HEIGHT
 
       @waypoints << { x: mx, y: my }
       @redraw_room = true
