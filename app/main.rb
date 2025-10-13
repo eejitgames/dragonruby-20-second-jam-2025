@@ -31,8 +31,8 @@ class Game
     @camera_y_offset = 0
     @camera_trauma = 0
     # @room_number = Numeric.rand(0 .. 1023)
-    @room_number = 0x0153
-    # @room_number = -1 # this is an empty blank room
+    # @room_number = 0x0153
+    @room_number = -1 # this is an empty blank room
     @room_rows = 45 # 720 / 16
     @room_cols = 80 # 1280 / 16
     @segment_height = SF * 12 + 2 * SF
@@ -170,13 +170,13 @@ class Game
 
   def game_render
     outputs.background_color = [0, 0, 0]
-=begin
+# =begin
     if Kernel.tick_count.zmod? 60
       @room_number = Numeric.rand(0 .. 1023)
       @redraw_room = true
       @room_grid = nil
     end
-=end
+# =end
     screenshake
     update_room_and_waypoints
     update_exit
