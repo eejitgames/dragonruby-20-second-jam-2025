@@ -104,7 +104,7 @@ module GameEmulation
     ]
     @waypoint_rects = []
     @waypoint_rects << Array.map( @waypoint_positions ) do |w|
-      w.merge( w: 12 * WR, h: 12 * WR, w: 12  * WR, h: 12  * WR, path: :solid, anchor_x: 0.5, anchor_y: 0.5, r: 200, g: 200, b: 200 ).border!
+      w.merge( w: 12 * WR, h: 12 * WR, w: 12  * WR, h: 12  * WR, path: :solid, anchor_x: 0.5, anchor_y: 0.5, r: 200, g: 200, b: 100 ).border!
     end
 
     @wall_dir = nil
@@ -378,7 +378,7 @@ module GameEmulation
     
     # debug show wall rects
     @maze_primitives << Array.map( @wall_rects ) do |w|
-      w.merge( path: :solid, r: 200, g: 200, b: 200 ).border!
+      w.merge( path: :solid, r: 200, g: 200, b: 100 ).border!
     end
     # debug show waypoint_rects
     @maze_primitives.concat(@waypoint_rects)
