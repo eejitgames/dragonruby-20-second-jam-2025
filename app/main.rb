@@ -16,6 +16,24 @@ class Game
     @regenerate_maze_rt = :true   # recreate maze render target
     # assign random testing positions for character start and exit position
     assign_start_and_end_positions
+    @last_visited_waypoint = @start_position
+    @player = {
+      x: @start_position.x,
+      y: @start_position.y,
+      w: 24,
+      h: 24,
+      path: :solid,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+      speed: 0.2 * SF,
+      mode: :walk,
+      angle_facing: 270,
+      frame_time: Kernel.tick_count,
+      frame_dir: 1,
+      frame: 0
+    }
+    putz @player
+    putz @last_visited_waypoint
   end
 
   def tick
@@ -220,9 +238,9 @@ class Game
     
   def assign_start_and_end_positions
     # start is one of the three positions on the left
-    @start_position = @waypoint_positions[0..2].sample
+    @start_position = @waypoint_positions[ 0..2 ].sample
     # end is one of the three positions on the right
-    @end_position  = @waypoint_positions[-3..-1].sample
+    @end_position  = @waypoint_positions[ -3..-1 ].sample
   end  
 end
 

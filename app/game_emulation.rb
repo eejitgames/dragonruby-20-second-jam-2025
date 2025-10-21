@@ -81,26 +81,26 @@ module GameEmulation
       }
     }
     @waypoint_positions = [
-      { x: 40  * WR, y: 144 * WR, w: 1  * WR, h: 1  * WR }, # section 1
-      { x: 40  * WR, y: 92  * WR, w: 1  * WR, h: 1  * WR }, # section 2
-      { x: 40  * WR, y: 40  * WR, w: 1  * WR, h: 1  * WR }, # section 3
+      { x: 40  * WR, y: 144 * WR }, # section 1
+      { x: 40  * WR, y: 92  * WR }, # section 2
+      { x: 40  * WR, y: 40  * WR }, # section 3
 
          
-      { x: 100 * WR, y: 144 * WR, w: 1  * WR, h: 1  * WR }, # section 4
-      { x: 100 * WR, y: 92  * WR, w: 1  * WR, h: 1  * WR }, # section 5
-      { x: 100 * WR, y: 40  * WR, w: 1  * WR, h: 1  * WR }, # section 6
+      { x: 100 * WR, y: 144 * WR }, # section 4
+      { x: 100 * WR, y: 92  * WR }, # section 5
+      { x: 100 * WR, y: 40  * WR }, # section 6
       
-      { x: 160 * WR, y: 144 * WR, w: 1  * WR, h: 1  * WR }, # section 7    
-      { x: 160 * WR, y: 92  * WR, w: 1  * WR, h: 1  * WR }, # section 8    
-      { x: 160 * WR, y: 40  * WR, w: 1  * WR, h: 1  * WR }, # section 9        
+      { x: 160 * WR, y: 144 * WR }, # section 7
+      { x: 160 * WR, y: 92  * WR }, # section 8
+      { x: 160 * WR, y: 40  * WR }, # section 9
             
-      { x: 220 * WR, y: 144 * WR, w: 1  * WR, h: 1  * WR }, # section 10
-      { x: 220 * WR, y: 92  * WR, w: 1  * WR, h: 1  * WR }, # section 11   
-      { x: 220 * WR, y: 40  * WR, w: 1  * WR, h: 1  * WR }, # section 12   
+      { x: 220 * WR, y: 144 * WR }, # section 10
+      { x: 220 * WR, y: 92  * WR }, # section 11
+      { x: 220 * WR, y: 40  * WR }, # section 12
                   
-      { x: 280 * WR, y: 144 * WR, w: 1  * WR, h: 1  * WR }, # section 13      
-      { x: 280 * WR, y: 92  * WR, w: 1  * WR, h: 1  * WR }, # section 14       
-      { x: 280 * WR, y: 40  * WR, w: 1  * WR, h: 1  * WR }  # section 15      
+      { x: 280 * WR, y: 144 * WR }, # section 13
+      { x: 280 * WR, y: 92  * WR }, # section 14
+      { x: 280 * WR, y: 40  * WR }  # section 15
     ]
     @waypoint_rects = []
     @waypoint_rects << Array.map( @waypoint_positions ) do |w|
