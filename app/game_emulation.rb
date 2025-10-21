@@ -34,7 +34,7 @@ module GameEmulation
       node_1: {
         W: { x: 16  * WR, y: 112 * WR, w: 60 * WR, h: 12 * WR },
         N: { x: 64  * WR, y: 112 * WR, w: 12 * WR, h: 52 * WR },
-        E: { x: 64  * WR, y: 112 * WR, w: 60 * WR, h: 12 * WR }, 
+        E: { x: 64  * WR, y: 112 * WR, w: 60 * WR, h: 12 * WR },
         S: { x: 64  * WR, y: 72  * WR, w: 12 * WR, h: 52 * WR }
       },
       node_2: {
@@ -56,8 +56,8 @@ module GameEmulation
         S: { x: 244 * WR, y: 72  * WR, w: 12 * WR, h: 52 * WR }
       },
       node_5: {
-        W: { x: 16  * WR, y: 60  * WR, w: 60 * WR, h: 12 * WR }, 
-        N: { x: 64  * WR, y: 60  * WR, w: 12 * WR, h: 52 * WR }, 
+        W: { x: 16  * WR, y: 60  * WR, w: 60 * WR, h: 12 * WR },
+        N: { x: 64  * WR, y: 60  * WR, w: 12 * WR, h: 52 * WR },
         E: { x: 64  * WR, y: 60  * WR, w: 60 * WR, h: 12 * WR },
         S: { x: 64  * WR, y: 20  * WR, w: 12 * WR, h: 52 * WR }
       },
@@ -85,19 +85,18 @@ module GameEmulation
       { x: 40  * WR, y: 92  * WR }, # section 2
       { x: 40  * WR, y: 40  * WR }, # section 3
 
-         
       { x: 100 * WR, y: 144 * WR }, # section 4
       { x: 100 * WR, y: 92  * WR }, # section 5
       { x: 100 * WR, y: 40  * WR }, # section 6
-      
+
       { x: 160 * WR, y: 144 * WR }, # section 7
       { x: 160 * WR, y: 92  * WR }, # section 8
       { x: 160 * WR, y: 40  * WR }, # section 9
-            
+
       { x: 220 * WR, y: 144 * WR }, # section 10
       { x: 220 * WR, y: 92  * WR }, # section 11
       { x: 220 * WR, y: 40  * WR }, # section 12
-                  
+
       { x: 280 * WR, y: 144 * WR }, # section 13
       { x: 280 * WR, y: 92  * WR }, # section 14
       { x: 280 * WR, y: 40  * WR }  # section 15
@@ -116,31 +115,31 @@ module GameEmulation
   def regenerate_layout
     # this method rebuilds the maze layout data based on the room number
     return if @room_number == -1
-    
+
     @room_grid ||= Array.new( @room_rows ) { Array.new( @room_cols, 0 ) }
     update_room_info      # used to decide which sprites to use, like at a junction
     add_ground_to_room    # add ground background before updates for wall sprites
-    update_wall_sprites   # update primitives with sprite info for maze based on the room   
+    update_wall_sprites   # update primitives with sprite info for maze based on the room
   end
-  
+
   def regenerate_maze
     # this method rebuilds a fresh maze render target when required
     outputs[ :room ].w = GAME_WIDTH
     outputs[ :room ].h = GAME_HEIGHT
     outputs[ :room ].background_color = [ 73, 81, 105 ]
-    
+
     add_diag_to_room
-    
+
     # perhaps additional render targets, avoid rebuilding this every frame
     outputs[ :room ].primitives << @maze_primitives
-  
+
     # clear this for the next tick - need different things here, maze one should be only for drawing the maze
     @regenerate_maze_rt = nil
     @maze_primitives.clear
     @room_grid = nil
     @wall_dir = nil
   end
-  
+
   def update_wall_sprites
     draw_wall_segment_sprites( x: 3,  y: 4,  dir: :N )
     draw_wall_segment_sprites( x: 3,  y: 30, dir: :N )
@@ -154,7 +153,7 @@ module GameEmulation
     draw_wall_segment_sprites( x: 48, y: 43, dir: :E )
     draw_wall_segment_sprites( x: 63, y: 4,  dir: :E )
     draw_wall_segment_sprites( x: 63, y: 43, dir: :E )
-        
+
     @maze_primitives << { x:  1 * SF, y:  2 * SF,      w: WS, h: WS, path: "sprites/walls/wall_5.png"  }
     @maze_primitives << { x:  1 * SF, y: 42 * SF - SF, w: WS, h: WS, path: "sprites/walls/wall_12.png" }
     @maze_primitives << { x: 76 * SF, y: 42 * SF - SF, w: WS, h: WS, path: "sprites/walls/wall_10.png" }
@@ -174,7 +173,7 @@ module GameEmulation
     @maze_primitives << { x:  1 * SF, y: 28 * SF,      w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 2,  y: 29 ) }.png" }
     @maze_primitives << { x: 76 * SF, y: 15 * SF,      w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 77, y: 16 ) }.png" }
     @maze_primitives << { x: 76 * SF, y: 28 * SF,      w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 77, y: 29 ) }.png" }
-    
+
     @wall_seed = @room_number
     draw_wall_segment_sprites( x: 18, y: 30, dir: get_direction )
     draw_wall_segment_sprites( x: 33, y: 30, dir: get_direction )
@@ -184,7 +183,7 @@ module GameEmulation
     draw_wall_segment_sprites( x: 33, y: 17, dir: get_direction )
     draw_wall_segment_sprites( x: 48, y: 17, dir: get_direction )
     draw_wall_segment_sprites( x: 63, y: 17, dir: get_direction )
-    
+
     @maze_primitives << { x: 31 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 32, y: 42 ) }.png" }
     @maze_primitives << { x: 46 * SF, y: 41 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 47, y: 42 ) }.png" }
     @maze_primitives << { x:  1 * SF, y: 15 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x:  2, y: 16 ) }.png" }
@@ -210,7 +209,7 @@ module GameEmulation
     @maze_primitives << { x: 46 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 47, y:  3 ) }.png" }
 
   end
-  
+
   def draw_wall_segment_sprites( x:, y:, dir: )
     case dir
     when :N
@@ -247,8 +246,8 @@ module GameEmulation
       end
     end
   end
-  
-  # we want to check the game grid coordinates at x: 3, y: 4,
+
+  # we want to check the game grid coordinates at x: 3, y: 4
   # this is at x: 2, y: 3 in 2d array, since 0, 0 is bottom left corner
   def choose_junction_sprite( x:, y: )
     n = ( @room_grid[ y + 1 ][ x ] == 1 ) ? 1 : 0
@@ -258,7 +257,7 @@ module GameEmulation
     # return autotile bits in decimal form
     "#{ s }#{ e }#{ w }#{ n }".to_i( 2 )
   end
-  
+
   def update_room_info
     update_room_grid( x: 3,  y: 4,  dir: :N )
     update_room_grid( x: 3,  y: 30, dir: :N )
@@ -273,46 +272,46 @@ module GameEmulation
     update_room_grid( x: 63, y: 4,  dir: :E )
     update_room_grid( x: 63, y: 43, dir: :E )
     @wall_seed = @room_number
-    
+
     # outer walls that don't change
     @wall_rects = [
       { x: 16  * WR, y: 8   * WR, w: 120 * WR, h: 12 * WR },
       { x: 16  * WR, y: 164 * WR, w: 120 * WR, h: 12 * WR },
       { x: 184 * WR, y: 8   * WR, w: 120 * WR, h: 12 * WR },
       { x: 184 * WR, y: 164 * WR, w: 120 * WR, h: 12 * WR },
-      
+
       { x: 4   * WR, y: 20  * WR, w: 12  * WR, h: 52 * WR },
       { x: 304 * WR, y: 20  * WR, w: 12  * WR, h: 52 * WR },
       { x: 4   * WR, y: 112 * WR, w: 12  * WR, h: 52 * WR },
       { x: 304 * WR, y: 112 * WR, w: 12  * WR, h: 52 * WR }
     ]
-  
+
     # inner walls, different layout depending on the room number
     update_room_grid( x: 18, y: 30, dir: get_direction )
     @wall_rects << @inner_wall_rect[ :node_1 ][ @wall_dir ]
-    
+
     update_room_grid( x: 33, y: 30, dir: get_direction )
     @wall_rects << @inner_wall_rect[ :node_2 ][ @wall_dir ]
-    
+
     update_room_grid( x: 48, y: 30, dir: get_direction )
     @wall_rects << @inner_wall_rect[ :node_3 ][ @wall_dir ]
-    
+
     update_room_grid( x: 63, y: 30, dir: get_direction )
     @wall_rects << @inner_wall_rect[ :node_4 ][ @wall_dir ]
-    
+
     update_room_grid( x: 18, y: 17, dir: get_direction )
     @wall_rects << @inner_wall_rect[ :node_5 ][ @wall_dir ]
-    
+
     update_room_grid( x: 33, y: 17, dir: get_direction )
     @wall_rects << @inner_wall_rect[ :node_6 ][ @wall_dir ]
-    
+
     update_room_grid( x: 48, y: 17, dir: get_direction )
     @wall_rects << @inner_wall_rect[ :node_7 ][ @wall_dir ]
-    
+
     update_room_grid( x: 63, y: 17, dir: get_direction )
     @wall_rects << @inner_wall_rect[ :node_8 ][ @wall_dir ]
   end
-  
+
   # this is a version of the generation system used in the arcade game berzerk
   # it follows the same patterns as the arcade game following a reset.
   def get_direction
@@ -341,7 +340,7 @@ module GameEmulation
       :W
     end
   end
-  
+
   def update_room_grid( x:, y:, dir: )
     case dir
     when :N
@@ -372,10 +371,10 @@ module GameEmulation
       path: "sprites/ground.png"
     }
   end
-  
+
   def add_diag_to_room
     return unless @show_diag
-    
+
     # debug show wall rects
     @maze_primitives << Array.map( @wall_rects ) do |w|
       w.merge( path: :solid, r: 200, g: 200, b: 100 ).border!
@@ -384,7 +383,7 @@ module GameEmulation
     @maze_primitives.concat(@waypoint_rects)
     @maze_primitives << @start_position.merge( w: 12 * WR, h: 12 * WR, w: 12  * WR, h: 12  * WR, path: :solid, anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 200, b: 0 ).border!
     @maze_primitives << @end_position.merge( w: 12 * WR, h: 12 * WR, w: 12  * WR, h: 12  * WR, path: :solid, anchor_x: 0.5, anchor_y: 0.5, r: 0, g: 0, b: 250 ).border!
-    
+
     if @debug_waypoint
       @maze_primitives << @debug_waypoint.merge( w: 12 * WR, h: 12 * WR, path: :solid, anchor_x: 0.5, anchor_y: 0.5, r: 255, g: rand( 255 ), b: rand( 255 ) ).solid!
     end
