@@ -119,6 +119,7 @@ module GameEmulation
     
     @room_grid ||= Array.new( @room_rows ) { Array.new( @room_cols, 0 ) }
     update_room_info      # used to decide which sprites to use, like at a junction
+    add_ground_to_room    # add ground background before updates for wall sprites
     update_wall_sprites   # update primitives with sprite info for maze based on the room   
   end
   
@@ -126,7 +127,7 @@ module GameEmulation
     # this method rebuilds a fresh maze render target when required
     outputs[ :room ].w = GAME_WIDTH
     outputs[ :room ].h = GAME_HEIGHT
-    outputs[ :room ].background_color = [ 0, 0, 0 ]
+    outputs[ :room ].background_color = [ 73, 81, 105 ]
     
     add_diag_to_room
     
@@ -360,6 +361,16 @@ module GameEmulation
         @room_grid[ y - 1][ x + i - 16] = 1
       end
     end
+  end
+
+  def add_ground_to_room
+    @maze_primitives << {
+      x: 0,
+      y: 0,
+      w: 320,
+      h: 180,
+      path: "sprites/ground.png"
+    }
   end
   
   def add_diag_to_room

@@ -153,7 +153,7 @@ class Game
   end
   
   def game_render
-    outputs.background_color = [ 0, 0, 0 ]
+    outputs.background_color = [ 73, 81, 105 ]
     
     case @game_mode
     when :planning
