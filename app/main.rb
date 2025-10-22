@@ -16,7 +16,7 @@ class Game
     @regenerate_maze_rt = :true   # recreate maze render target
     # assign random testing positions for character start and exit position
     assign_start_and_end_positions
-    @last_visited_waypoint = @start_position
+    @last_waypoint = @start_position
     @player = {
       x: @start_position.x,
       y: @start_position.y,
@@ -32,8 +32,6 @@ class Game
       frame_dir: 1,
       frame: 0
     }
-    putz @player
-    putz @last_visited_waypoint
   end
 
   def tick
@@ -116,7 +114,7 @@ class Game
   def game_input
     # screenshake testing
     if inputs.mouse.click
-      @camera_trauma = 0.5
+      # @camera_trauma = 0.5
     end
 
     # toggle framerate diagnostics
@@ -139,16 +137,18 @@ class Game
       mx = ( inputs.mouse.x ).idiv( ZOOM )
       my = ( inputs.mouse.y ).idiv( ZOOM )
 
-      @debug_waypoint = find_closest_waypoint( mx, my )
-      @regenerate_maze_rt = :true
-    end
-  end
+      test_wp = find_closest_waypoint( mx, my )
+      get_waypoint_distance @last_waypoint, test_wp
 
-  def find_closest_waypoint( x, y )
-    @waypoint_positions.min_by do |wp|
-      dx = wp.x - x
-      dy = wp.y - y
-      dx * dx + dy * dy
+      if @waypoint_distance <= 3600
+        @debug_waypoint = test_wp
+        @regenerate_maze_rt = :true
+        # set this here for now, independant from player movement
+        @last_waypoint = @debug_waypoint
+        @camera_trauma = 0.2
+      else
+        debug_waypoint = nil
+      end
     end
   end
 
@@ -216,6 +216,21 @@ class Game
                               g: 255,
                               b: 255 }.label!
     end
+  end
+
+  def find_closest_waypoint( x, y )
+    @waypoint_positions.min_by do |wp|
+      dx = wp.x - x
+      dy = wp.y - y
+      dx * dx + dy * dy
+    end
+  end
+
+  def get_waypoint_distance( p1, p2)
+    dx = p1.x - p2.x
+    dy = p1.y - p2.y
+    @waypoint_distance = dx * dx + dy * dy
+    @waypoint_distance
   end
 
   def screenshake
