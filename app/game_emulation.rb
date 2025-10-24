@@ -142,13 +142,17 @@ module GameEmulation
 
   def update_wall_sprites
     draw_wall_segment_sprites( x: 3,  y: 4,  dir: :N )
+    draw_wall_segment_sprites( x: 3,  y: 17, dir: :N ) # close over W door
     draw_wall_segment_sprites( x: 3,  y: 30, dir: :N )
     draw_wall_segment_sprites( x: 78, y: 4,  dir: :N )
+    draw_wall_segment_sprites( x: 78, y: 17, dir: :N ) # close over E door
     draw_wall_segment_sprites( x: 78, y: 30, dir: :N )
     draw_wall_segment_sprites( x: 3,  y: 4,  dir: :E )
     draw_wall_segment_sprites( x: 3,  y: 43, dir: :E )
     draw_wall_segment_sprites( x: 18, y: 4,  dir: :E )
     draw_wall_segment_sprites( x: 18, y: 43, dir: :E )
+    draw_wall_segment_sprites( x: 33, y: 4 , dir: :E ) # close over S door
+    draw_wall_segment_sprites( x: 33, y: 43, dir: :E ) # close over N door
     draw_wall_segment_sprites( x: 48, y: 4,  dir: :E )
     draw_wall_segment_sprites( x: 48, y: 43, dir: :E )
     draw_wall_segment_sprites( x: 63, y: 4,  dir: :E )
@@ -260,13 +264,17 @@ module GameEmulation
 
   def update_room_info
     update_room_grid( x: 3,  y: 4,  dir: :N )
+    update_room_grid( x: 3,  y: 17, dir: :N ) # close over W door
     update_room_grid( x: 3,  y: 30, dir: :N )
     update_room_grid( x: 78, y: 4,  dir: :N )
+    update_room_grid( x: 78, y: 17, dir: :N ) # close over E door
     update_room_grid( x: 78, y: 30, dir: :N )
     update_room_grid( x: 3,  y: 4,  dir: :E )
     update_room_grid( x: 3,  y: 43, dir: :E )
     update_room_grid( x: 18, y: 4,  dir: :E )
     update_room_grid( x: 18, y: 43, dir: :E )
+    update_room_grid( x: 33, y: 4 , dir: :E ) # close over S door
+    update_room_grid( x: 33, y: 43, dir: :E ) # close over N door
     update_room_grid( x: 48, y: 4,  dir: :E )
     update_room_grid( x: 48, y: 43, dir: :E )
     update_room_grid( x: 63, y: 4,  dir: :E )
@@ -275,15 +283,19 @@ module GameEmulation
 
     # outer walls that don't change
     @wall_rects = [
-      { x: 16  * WR, y: 8   * WR, w: 120 * WR, h: 12 * WR },
-      { x: 16  * WR, y: 164 * WR, w: 120 * WR, h: 12 * WR },
-      { x: 184 * WR, y: 8   * WR, w: 120 * WR, h: 12 * WR },
-      { x: 184 * WR, y: 164 * WR, w: 120 * WR, h: 12 * WR },
+      #{ x: 16  * WR, y: 8   * WR, w: 120 * WR, h: 12 * WR },
+      #{ x: 16  * WR, y: 164 * WR, w: 120 * WR, h: 12 * WR },
+      { x: 16  * WR, y: 8   * WR, w: 288 * WR, h: 12 * WR },
+      { x: 16  * WR, y: 164 * WR, w: 288 * WR, h: 12 * WR },
+      #{ x: 184 * WR, y: 8   * WR, w: 120 * WR, h: 12 * WR },
+      #{ x: 184 * WR, y: 164 * WR, w: 120 * WR, h: 12 * WR },
 
-      { x: 4   * WR, y: 20  * WR, w: 12  * WR, h: 52 * WR },
-      { x: 304 * WR, y: 20  * WR, w: 12  * WR, h: 52 * WR },
-      { x: 4   * WR, y: 112 * WR, w: 12  * WR, h: 52 * WR },
-      { x: 304 * WR, y: 112 * WR, w: 12  * WR, h: 52 * WR }
+      #{ x: 4   * WR, y: 20  * WR, w: 12  * WR, h: 52 * WR },
+      #{ x: 304 * WR, y: 20  * WR, w: 12  * WR, h: 52 * WR },
+      { x: 4   * WR, y: 20  * WR, w: 12  * WR, h: 144 * WR },
+      { x: 304 * WR, y: 20  * WR, w: 12  * WR, h: 144 * WR },
+      #{ x: 4   * WR, y: 112 * WR, w: 12  * WR, h: 52 * WR },
+      #{ x: 304 * WR, y: 112 * WR, w: 12  * WR, h: 52 * WR }
     ]
 
     # inner walls, different layout depending on the room number
