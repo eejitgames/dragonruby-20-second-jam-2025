@@ -32,6 +32,12 @@ class Game
       frame_dir: 1,
       frame: 0
     }
+    @room_options = [] # 8 rooms to choose from 
+    @room_queue = []   # 4 room layouts to navigate during gameplay
+    @allowed_room_numbers = File.read("data/room_numbers.txt").split("\n").map(&:strip).map(&:to_i)
+    # putz @allowed_room_numbers
+    # putz @allowed_room_numbers.length
+    # putz @allowed_room_numbers.shuffle.take(8)
   end
 
   def tick
@@ -134,6 +140,7 @@ class Game
 
     # debug nearest waypoint testing
     if inputs.mouse.click
+      putz "clicking"
       mx = ( inputs.mouse.x ).idiv( ZOOM )
       my = ( inputs.mouse.y ).idiv( ZOOM )
 
@@ -149,7 +156,9 @@ class Game
       else
         debug_waypoint = nil
       end
-    end
+    # if you are planning, or the room queue is empty
+    # then you cannot place items
+    end unless @game_mode == :planning || @room_queue.empty?
   end
 
   def game_calc
@@ -157,11 +166,11 @@ class Game
 
     if @game_mode == :playing
       # if inputs.keyboard.key_up.n
-      if Kernel.tick_count.zmod? 120
-        @regenerate_maze_rt = :true
-        @room_number += 1
-        @room_number = 0 if @room_number > 1023
-      end
+      #if Kernel.tick_count.zmod? 120
+      #  @regenerate_maze_rt = :true
+      #  # @room_number += 1
+      #  @room_number = 0 if @room_number > 1023
+      #end
 
       if @regenerate_maze_rt
         regenerate_layout
