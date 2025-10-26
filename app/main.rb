@@ -9,10 +9,10 @@ class Game
     @camera_x_offset = 0
     @camera_y_offset = 0
     @camera_trauma = 0
-    @current_scene = :title_scene # starting scene
+    @current_scene = :game_scene  # starting scene
     @room_number = -1             # blank room
     @game_mode = :planning        # planning or playing
-    @show_diag = false            # frame diagnostics
+    @show_diag = true             # frame diagnostics
     @regenerate_maze_rt = :true   # recreate maze render target
     # assign random testing positions for character start and exit position
     assign_start_and_end_positions
@@ -32,12 +32,27 @@ class Game
       frame_dir: 1,
       frame: 0
     }
-    @room_options = [] # 8 rooms to choose from 
-    @room_queue = []   # 4 room layouts to navigate during gameplay
     @allowed_room_numbers = File.read("data/room_numbers.txt").split("\n").map(&:strip).map(&:to_i)
-    # putz @allowed_room_numbers
-    # putz @allowed_room_numbers.length
-    # putz @allowed_room_numbers.shuffle.take(8)
+    @room_selector = @allowed_room_numbers.shuffle.take(8) # 8 random rooms to choose from
+    @room_queue = [] # 4 room layouts to navigate during gameplay
+    cols = 4
+    rows = 2
+    start_x = 30
+    start_y = 300
+    spacing_x = 320
+    spacing_y = 200
+    @room_options = (rows * cols).times.map do |i|
+      row = (i / cols).floor
+      col = (i % cols).floor
+
+      {
+        x: start_x + col * spacing_x,
+        y: start_y + row * spacing_y,
+        w: 256,
+        h: 144,
+        path: "sprites/256x144_thumbnails/room-#{@room_selector[i]}.png"
+      }
+    end
   end
 
   def tick
@@ -184,6 +199,7 @@ class Game
 
     case @game_mode
     when :planning
+      outputs.primitives << @room_options
 
     when :playing
       # render the game scaled to fit the screen

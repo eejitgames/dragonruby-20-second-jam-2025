@@ -211,7 +211,6 @@ module GameEmulation
     @maze_primitives << { x: 76 * SF, y: 28 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 77, y: 29 ) }.png" }
     @maze_primitives << { x: 31 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 32, y:  3 ) }.png" }
     @maze_primitives << { x: 46 * SF, y:  2 * SF, w: WS, h: WS, path: "sprites/walls/wall_#{ choose_junction_sprite( x: 47, y:  3 ) }.png" }
-
   end
 
   def draw_wall_segment_sprites( x:, y:, dir: )
