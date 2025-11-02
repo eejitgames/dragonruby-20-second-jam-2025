@@ -235,10 +235,10 @@ class Game
 
     occupied_indices = @room_queue.map { |r| r[:queue_index] }
     slot_index = (0..3).find { |i| !occupied_indices.include?(i) }
-    return unless slot_index  # queue full
+    return unless slot_index
 
-    x_start = 30
-    y_start = 100
+    x_start = 0
+    y_start = 0
     spacing_x = 320
     spacing_y = 0
     x = x_start + slot_index * spacing_x
@@ -246,9 +246,9 @@ class Game
 
     @room_queue << {
       id: room_data[:id],
-      path: room_data[:path],
-      w: room_data[:w],
-      h: room_data[:h],
+      path: "sprites/320x180_thumbnails/room-#{ room_data[ :room_number ] }.png",
+      w: 320,
+      h: 180,
       queue_index: slot_index,
       x: x,
       y: y
@@ -264,12 +264,7 @@ class Game
       end
 
       if clicked_queue_room
-        putz "room removed from the queue: #{clicked_queue_room[:id]}"
-        putz "position removed from queue: #{clicked_queue_room[:queue_index]}"
         @room_queue.delete(clicked_queue_room)
-
-        putz "is the queue empty ? #{@room_queue.empty?}"
-
         return
       end
 
@@ -278,8 +273,6 @@ class Game
       end
 
       if button
-        putz "clicked button: #{ button.id }"
-        putz "room number: #{ button.room_number }"
         add_room_to_queue(button[:id])
       end
     end
@@ -290,8 +283,6 @@ class Game
 
     # debug nearest waypoint testing
     if inputs.mouse.click
-
-      putz "is the queue empty ? #{@room_queue.empty?}"
 
       mx = ( inputs.mouse.x ).idiv( ZOOM )
       my = ( inputs.mouse.y ).idiv( ZOOM )
