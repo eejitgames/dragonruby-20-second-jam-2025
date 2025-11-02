@@ -32,8 +32,8 @@ class Game
       frame_dir: 1,
       frame: 0
     }
-    @allowed_room_numbers = File.read("data/room_numbers.txt").split("\n").map(&:strip).map(&:to_i)
-    @room_selector = @allowed_room_numbers.shuffle.take(8) # 8 random rooms to choose from
+    @allowed_room_numbers = File.read( "data/room_numbers.txt" ).split( "\n" ).map( &:strip ).map( &:to_i )
+    @room_selector = @allowed_room_numbers.shuffle.take( 8 ) # 8 random rooms to choose from
     @room_queue = [] # 4 room layouts to navigate during gameplay
     cols = 4
     rows = 2
@@ -41,16 +41,18 @@ class Game
     start_y = 300
     spacing_x = 320
     spacing_y = 200
-    @room_options = (rows * cols).times.map do |i|
-      row = (i / cols).floor
-      col = (i % cols).floor
+    @room_options = ( rows * cols ).times.map do |i|
+      row = ( i / cols ).floor
+      col = ( i % cols ).floor
 
       {
         x: start_x + col * spacing_x,
-        y: start_y + row * spacing_y,
+        y: start_y + ( rows - 1 - row ) * spacing_y,
         w: 256,
         h: 144,
-        path: "sprites/256x144_thumbnails/room-#{@room_selector[i]}.png"
+        path: "sprites/256x144_thumbnails/room-#{ @room_selector[i] }.png",
+        id: i + 1,
+        room_number: @room_selector[i]
       }
     end
   end
@@ -153,27 +155,8 @@ class Game
       end
     end
 
-    # debug nearest waypoint testing
-    if inputs.mouse.click
-      putz "clicking"
-      mx = ( inputs.mouse.x ).idiv( ZOOM )
-      my = ( inputs.mouse.y ).idiv( ZOOM )
-
-      test_wp = find_closest_waypoint( mx, my )
-      get_waypoint_distance @last_waypoint, test_wp
-
-      if @waypoint_distance <= 3600
-        @debug_waypoint = test_wp
-        @regenerate_maze_rt = :true
-        # set this here for now, independant from player movement
-        @last_waypoint = @debug_waypoint
-        @camera_trauma = 0.2
-      else
-        debug_waypoint = nil
-      end
-    # if you are planning, or the room queue is empty
-    # then you cannot place items
-    end unless @game_mode == :planning || @room_queue.empty?
+    planning_check_thumbnail_selected
+    playing_check_waypoint_selected
   end
 
   def game_calc
@@ -200,6 +183,7 @@ class Game
     case @game_mode
     when :planning
       outputs.primitives << @room_options
+      outputs.primitives << @room_queue
 
     when :playing
       # render the game scaled to fit the screen
@@ -241,6 +225,91 @@ class Game
                               g: 255,
                               b: 255 }.label!
     end
+  end
+
+  def add_room_to_queue(id)
+    return if @room_queue.any? { |r| r[:id] == id }
+
+    room_data = @room_options.find { |r| r[:id] == id }
+    return unless room_data
+
+    occupied_indices = @room_queue.map { |r| r[:queue_index] }
+    slot_index = (0..3).find { |i| !occupied_indices.include?(i) }
+    return unless slot_index  # queue full
+
+    x_start = 30
+    y_start = 100
+    spacing_x = 320
+    spacing_y = 0
+    x = x_start + slot_index * spacing_x
+    y = y_start + spacing_y
+
+    @room_queue << {
+      id: room_data[:id],
+      path: room_data[:path],
+      w: room_data[:w],
+      h: room_data[:h],
+      queue_index: slot_index,
+      x: x,
+      y: y
+    }
+  end
+
+  def planning_check_thumbnail_selected
+    return if @game_mode != :planning
+
+    if inputs.mouse.click
+      clicked_queue_room = @room_queue.find do |r|
+        inputs.mouse.intersect_rect? r
+      end
+
+      if clicked_queue_room
+        putz "room removed from the queue: #{clicked_queue_room[:id]}"
+        putz "position removed from queue: #{clicked_queue_room[:queue_index]}"
+        @room_queue.delete(clicked_queue_room)
+
+        putz "is the queue empty ? #{@room_queue.empty?}"
+
+        return
+      end
+
+      button = @room_options.find do |r|
+        inputs.mouse.intersect_rect? r
+      end
+
+      if button
+        putz "clicked button: #{ button.id }"
+        putz "room number: #{ button.room_number }"
+        add_room_to_queue(button[:id])
+      end
+    end
+  end
+
+  def playing_check_waypoint_selected
+    return if @game_mode != :playing
+
+    # debug nearest waypoint testing
+    if inputs.mouse.click
+
+      putz "is the queue empty ? #{@room_queue.empty?}"
+
+      mx = ( inputs.mouse.x ).idiv( ZOOM )
+      my = ( inputs.mouse.y ).idiv( ZOOM )
+
+      test_wp = find_closest_waypoint( mx, my )
+      get_waypoint_distance @last_waypoint, test_wp
+
+      if @waypoint_distance <= 3600
+        @debug_waypoint = test_wp
+        @regenerate_maze_rt = :true
+        # set this here for now, independant from player movement
+        @last_waypoint = @debug_waypoint
+        @camera_trauma = 0.2
+      else
+        debug_waypoint = nil
+      end
+    # if you are planning, or the room queue is empty then you cannot place items
+    end unless @game_mode == :planning || @room_queue.empty?
   end
 
   def find_closest_waypoint( x, y )

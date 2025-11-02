@@ -364,11 +364,11 @@ module GameEmulation
       end
     when :E
       16.times do |i|
-        @room_grid[ y - 1][ x + i - 1] = 1
+        @room_grid[ y - 1 ][ x + i - 1 ] = 1
       end
     when :W
       16.times do |i|
-        @room_grid[ y - 1][ x + i - 16] = 1
+        @room_grid[ y - 1 ][ x + i - 16 ] = 1
       end
     end
   end
