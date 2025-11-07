@@ -234,7 +234,7 @@ class Game
     return unless room_data
 
     occupied_indices = @room_queue.map { |r| r[:queue_index] }
-    slot_index = (0..3).find { |i| !occupied_indices.include?(i) }
+    slot_index = ( 0..3 ).find { |i| !occupied_indices.include?(i) }
     return unless slot_index
 
     x_start = 0
@@ -245,7 +245,7 @@ class Game
     y = y_start + spacing_y
 
     @room_queue << {
-      id: room_data[:id],
+      id: room_data[ :id ],
       path: "sprites/320x180_thumbnails/room-#{ room_data[ :room_number ] }.png",
       w: 320,
       h: 180,
@@ -280,6 +280,7 @@ class Game
 
   def playing_check_waypoint_selected
     return if @game_mode != :playing
+    return if @game_mode == :planning || @room_queue.empty?
 
     # debug nearest waypoint testing
     if inputs.mouse.click
@@ -297,10 +298,10 @@ class Game
         @last_waypoint = @debug_waypoint
         @camera_trauma = 0.2
       else
-        debug_waypoint = nil
+        @debug_waypoint = nil
       end
     # if you are planning, or the room queue is empty then you cannot place items
-    end unless @game_mode == :planning || @room_queue.empty?
+    end # unless @game_mode == :planning || @room_queue.empty?
   end
 
   def find_closest_waypoint( x, y )
