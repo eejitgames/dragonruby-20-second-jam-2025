@@ -1,7 +1,7 @@
 class Camera
-    attr_accessor :x, :y, :shake
+    attr_accessor :x, :y
 
-    def initialize(shake_amplitude: 100, shake_freq_x: 0.5, shake_freq_y: 0.7, shake_decay: 0.95, shake_max: 0.6)
+    def initialize( shake_amplitude: 100, shake_freq_x: 0.5, shake_freq_y: 0.7, shake_decay: 0.95, shake_max: 0.6 )
         reset
         @amplitude = shake_amplitude
         @frequency_x = shake_freq_x
@@ -16,17 +16,17 @@ class Camera
         @shake = 0.0
     end
 
-    def add_shake(amount)
+    def add_shake( amount )
         @shake += amount
         @shake = @shake_max if @shake > @shake_max
     end
 
-    def update_shake(t)
+    def update_shake( t )
         return if @shake.zero?
 
-        s = [@amplitude * @shake**2, @amplitude].min
-        @x = (Math.sin(t * @frequency_x) * s).floor
-        @y = (Math.cos(t * @frequency_y) * s).floor
+        s = [ @amplitude * @shake**2, @amplitude ].min
+        @x = ( Math.sin( t * @frequency_x ) * s ).floor
+        @y = ( Math.cos( t * @frequency_y ) * s ).floor
         @shake *= @decay
         reset if @shake < 0.07
     end
