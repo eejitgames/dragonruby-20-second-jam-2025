@@ -26,8 +26,8 @@ def self.tick args
     $game.tick
 
     args.outputs.sprites << {
-        x: $game.camera.x,
-        y: $game.camera.y,
+        x: $game.camera.x * ZOOM,
+        y: $game.camera.y * ZOOM,
         w: ZOOMED_WIDTH,
         h: ZOOMED_HEIGHT,
         path: :room

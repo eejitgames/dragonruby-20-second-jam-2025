@@ -2,12 +2,12 @@ class Camera
     attr_accessor :x, :y
 
     def initialize( shake_amplitude: 100, shake_freq_x: 0.5, shake_freq_y: 0.7, shake_decay: 0.95, shake_max: 0.6 )
-        reset
         @amplitude = shake_amplitude
         @frequency_x = shake_freq_x
         @frequency_y = shake_freq_y
         @decay = shake_decay
         @shake_max = shake_max
+        reset
     end
 
     def reset
