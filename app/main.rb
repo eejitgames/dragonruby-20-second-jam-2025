@@ -1,5 +1,6 @@
 require_relative "game_emulation"
 require_relative "camera"
+require_relative "room"
 
 class Game
   attr_gtk
@@ -7,10 +8,11 @@ class Game
 
   def initialize
     @camera = Camera.new
+    @room = Room.new
   end
 
   def tick
-    @camera.add_shake 0.6 if inputs.keyboard.key_held.space
+    @camera.add_shake 0.4 if inputs.keyboard.key_down.space
     @camera.update_shake Kernel.tick_count
     render
   end
